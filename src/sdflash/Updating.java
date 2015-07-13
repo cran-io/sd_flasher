@@ -7,32 +7,20 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import static java.lang.System.exit;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import static sdflash.Flasher.games;
 
 public final class Updating extends javax.swing.JFrame {
-    
+//  Here we declare the variables that we are going to use in all the class  
     String server = "104.236.88.136:3000";
     Supplier supp;
     static List<Game> games = new ArrayList<Game>();
@@ -47,6 +35,7 @@ public final class Updating extends javax.swing.JFrame {
      */
     
     public Updating(Supplier supp){
+//      Here we initialize some objects and variables.  
         initComponents();
         this.setLocationRelativeTo(null);
         jLabel1.setText("Verificando versiones...");
@@ -106,7 +95,7 @@ public final class Updating extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     public void start() throws IOException, InterruptedException, JSONException{
-        
+//      First we create all the timers that we are going to use to program the order of the labels.  
         Timer tClosingConnextion = new Timer(8000, new ActionListener ()
         { 
             @Override
@@ -165,14 +154,14 @@ public final class Updating extends javax.swing.JFrame {
                 }   
         }); 
         tNothingToUpdate.setRepeats(false);        
-        
+//      Here we have all the variables that we are going to use.  
         boolean differences = false;
         boolean firstDownload = false;
         String text = "";
         int gameNumber = 0;
         
         int packageNumber = 0;
-        
+//      Here we make all the querys that we need about the games and packages.  
         InputStream in = null;
         in = new URL("http://"+server+"//api//v1//games//?api_token=" + supp.getApiToken()).openStream();
         
@@ -189,7 +178,7 @@ public final class Updating extends javax.swing.JFrame {
         
         JSONArray jsonPackages = new JSONArray(text); 
         int countOfPackages = jsonPackages.length(); 
-        
+//      And then we create the objects.  
         for (int i = 0; i < jsonArray.length(); i++) 
         {
             JSONObject explrObject = jsonArray.getJSONObject(i);
@@ -321,7 +310,7 @@ public final class Updating extends javax.swing.JFrame {
             }while(gameNumber<countOfGames);
             
         }
-        
+//      Finally we use "if" in order to put the text labels that are acording to the boolenas values.
         if (differences)
         {
             if (firstDownload) tFirstDownload.start();

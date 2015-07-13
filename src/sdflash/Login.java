@@ -3,37 +3,22 @@ package sdflash;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 
 
 import static java.lang.System.exit;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.Charset;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.text.DecimalFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import static sdflash.Flasher.games;
 
 /**
  *
@@ -127,17 +112,18 @@ public class Login extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jToggleButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton2ActionPerformed
-        // TODO add your handling code here:
+//      With this button we close the program.
         exit(0);        
     }//GEN-LAST:event_jToggleButton2ActionPerformed
 
     private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginButtonActionPerformed
-         
-        loginButton.enable(false);
+//      First we create two variables, one for the text that we get for the query and the another for the name of the user
         String text = "";
         String name = "";
+//      After that we also create 2 ints, one for the id of the provider and another for the wallet that we get  
         int id = 0;
         int wallet = 0;
+//      Here we create the conection with the api in order to get the information about the provider  
         InputStream in = null;
         try {
             in = new URL("http://"+server+"//api//v1//profile//?api_token=" + password.getText()).openStream();
@@ -156,7 +142,8 @@ public class Login extends javax.swing.JFrame {
         } catch (ParseException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+//      Finally we check that the user has introduce a valid api token and we create the object supplier and open the object
+//      that is going to update all the games and packages.  
         if (name!=""){
             final Supplier supplier = new Supplier(id, name, wallet,password.getText());
             this.setVisible(false);

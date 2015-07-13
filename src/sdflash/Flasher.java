@@ -1,7 +1,6 @@
 package sdflash;
 
 import java.awt.Toolkit;
-import java.awt.event.*;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,28 +11,18 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import static java.lang.Math.random;
 import static java.lang.System.exit;
-import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
-import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.apache.commons.io.FileUtils;
@@ -45,11 +34,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONException;
-
-
 
 /**
  *
@@ -57,11 +43,11 @@ import org.json.JSONException;
  */
 
 public class Flasher extends JFrame{
-
+//  First we defined all the variables that we are going to use.
     int sale= 0 ;
     int salesPackages[] = new int[0];
     DefaultListModel packagesToSale = new DefaultListModel();
-    String server = "190.195.10.209:3001";
+    String server = "104.236.88.136:3000";
     static Supplier supplier;    
     static List<Game> games = new ArrayList<Game>();
     static List<Package> packages = new ArrayList<Package>();
@@ -75,21 +61,20 @@ public class Flasher extends JFrame{
     }
 
     public Flasher(final Supplier supplier, final List<Package> packagesListSent) throws JSONException {
+//      First we initialize the values of the variables and another for the JFrame.  
         initComponents();
         setIcon();
         this.setLocationRelativeTo(null);
-        this.supplier = supplier;
-        this.games = games;
+        this.supplier = supplier;        
         this.packages = packagesListSent;
         int wallet = this.supplier.getWallet()/100;
         int cents = this.supplier.getWallet() - wallet*100;
-        
-        usernameLabel.setText("Usuario: " + supplier.getName());
-        walletLabel.setText("Credito: " + Integer.toString(wallet) + "." + Integer.toString(cents));
-        
         String text = "";
         String name = "";
         int id = 0;
+//      Here we set the text of the labels.  
+        usernameLabel.setText("Usuario: " + supplier.getName());
+        walletLabel.setText("Credito: " + Integer.toString(wallet) + "." + Integer.toString(cents));
         
         DefaultListModel model = new DefaultListModel();
 
@@ -98,11 +83,8 @@ public class Flasher extends JFrame{
         for (int i = 0; i < packages.size(); i++) {
             ar.add(packages.get(i).toString());
             model.add(i,packages.get(i).toString() + " " + packages.get(i).getPrice());
-        }
+        } 
         
-//        int gamesSelects = 0;
-//        DefaultListModel modelOfSale = new DefaultListModel();   
-
         int totalPrice = 0;
         packageList.setModel(model);
         
@@ -115,14 +97,13 @@ public class Flasher extends JFrame{
                 String selectedOption = "";
                 int gameSelected = 0;
                 
-                if (!ev.getValueIsAdjusting()){
+                if ((!ev.getValueIsAdjusting()) && ((((JList)ev.getSource()).getModel().getSize())!=0)){
                     JList source = (JList)ev.getSource();
                     selectedOption = source.getSelectedValue().toString();
                     gameSelected = source.getSelectedIndex();
 
                     for (int i = 0; i < packages.size(); i++) {
                         if(packages.get(i).toString().equals(ar.get(gameSelected))){
-//                            System.out.println(packages.get(i).getId());
                             gameToSale = i;
                             int id = packages.get(i).getId();
                             try {
@@ -366,15 +347,12 @@ public class Flasher extends JFrame{
     }// </editor-fold>//GEN-END:initComponents
 
     private void exitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitButtonActionPerformed
+//      If the provider press the button we close the program.
         exit(0);
     }//GEN-LAST:event_exitButtonActionPerformed
 
     private void flashSDCardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_flashSDCardActionPerformed
         // TODO add your handling code here:
-        sale = sale + packages.get(gameToSale).getFullPrice();
-            int cents = sale % 100;
-            int decimals = sale/100;
-            labelPrice.setText("Precio: " + Integer.toString(decimals) + "." + Integer.toString(cents));   
         if(controlPackages==0){
             JOptionPane.showMessageDialog(null, "Debe elejir al menos un paquete para realizar una venta.", "ERROR: Ningun paquete agregado", 1);
         }
@@ -473,15 +451,20 @@ public class Flasher extends JFrame{
                     
                 }
                 
-                FlashMemory fm = new FlashMemory();
+                this.setVisible(false);
+                FlashMemory fm = new FlashMemory(supplier,packages);
                 fm.show();
-                
+                this.dispose();
             }
         }
     }//GEN-LAST:event_flashSDCardActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        sale = sale + packages.get(gameToSale).getFullPrice();
+        int cents = sale % 100;
+        int decimals = sale/100;
+        labelPrice.setText("Precio: " + Integer.toString(decimals) + "." + Integer.toString(cents));   
         if(packages.get(gameToSale).getFullPrice()>supplier.getWallet()){
             JOptionPane.showMessageDialog(null, "No posee los creditos suficientes para adquirir este paquete. Contactar a Eurocase", "Error",JOptionPane.ERROR_MESSAGE);
         }
@@ -497,11 +480,22 @@ public class Flasher extends JFrame{
             packagesToSale.add(controlPackages, packages.get(gameToSale).toString());
             controlPackages ++;
             toFlashList.setModel(packagesToSale);
+            
+            int itemToDelete = packageList.getSelectedIndex();
+            
+            DefaultListModel model2 = new DefaultListModel();
+            
+            for (int i = 0; i < packages.size(); i++) {
+                if (itemToDelete!=i) {
+                    model2.add(i,packages.get(i).toString() + " " + packages.get(i).getPrice());
+                }
+            } 
+            packageList.setModel(model2);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void buttonClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonClearActionPerformed
-        // TODO add your handling code here:
+//      When the user press the button we clear all the information.       
         this.setVisible(false);
         Flasher flash;
         try {                    
@@ -510,7 +504,7 @@ public class Flasher extends JFrame{
         } catch (JSONException ex) {
             Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+        this.dispose();
     }//GEN-LAST:event_buttonClearActionPerformed
 
     /**

@@ -12,15 +12,27 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileSystemView;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONException;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.parser.ParseException;
 import org.usb4java.DeviceList;
 import static sdflash.Flasher.packages;
+import static sdflash.Flasher.supplier;
 
 
 /**
@@ -34,9 +46,14 @@ public class FlashMemory extends javax.swing.JFrame {
      */
     
     Login login;
+    static List<Package> packages = new ArrayList<Package>();
+    Supplier supplier;
+    String server = "104.236.88.136:3000";
     
-    public FlashMemory() {
+    public FlashMemory(Supplier supp, List<Package> packagesListSent) {
         initComponents();
+        this.supplier = supp;
+        this.packages = packagesListSent;
         setIcon();
         this.setLocationRelativeTo(null);
         
@@ -128,7 +145,6 @@ public class FlashMemory extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-//        String pathOfGames = System.getProperty("user.dir") + File.separator + "Files" + File.separator + "game" + explrObject2.getInt("id");
         String pathOfCopy = System.getProperty("user.dir") + File.separator + "FolderToCopy";
         String sn = jComboBox1.getSelectedItem().toString();
         String pathOfDestination = sn + "games";
@@ -141,6 +157,33 @@ public class FlashMemory extends javax.swing.JFrame {
             Logger.getLogger(FlashMemory.class.getName()).log(Level.SEVERE, null, ex);
         }    
         this.setVisible(false);
+        Flasher flash;
+        
+        try {
+            String apiToken = supplier.getApiToken();
+            InputStream in = new URL("http://"+server+"//api//v1//profile//?api_token=" + supplier.getApiToken()).openStream();
+            String text = IOUtils.toString( in ) ;
+            IOUtils.closeQuietly(in);
+            String genreJson = text;
+            JSONObject genreJsonObject = (JSONObject) JSONValue.parseWithException(genreJson);
+            String name = genreJsonObject.get("name").toString();
+            int id = Integer.parseInt(genreJsonObject.get("id").toString());
+            int wallet = Integer.parseInt(genreJsonObject.get("credit").toString());
+            supplier = new Supplier(id, name, wallet, apiToken);
+        } catch (MalformedURLException ex) {
+            JOptionPane.showMessageDialog(null, "Tu contraseña ya no es valida o es incorrecta.", "Error",JOptionPane.ERROR_MESSAGE);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "Los servidores estan siendo actualizados. Reintentar mas tarde.", "Error",JOptionPane.ERROR_MESSAGE);
+        } catch (ParseException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        try {                    
+            flash = new Flasher(supplier, packages);
+            flash.show();
+        } catch (JSONException ex) {
+            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+        }
         this.dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 
