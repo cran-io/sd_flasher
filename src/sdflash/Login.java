@@ -138,7 +138,7 @@ public class Login extends javax.swing.JFrame {
         } catch (MalformedURLException ex) {
             JOptionPane.showMessageDialog(null, "Tu contraseña ya no es valida o es incorrecta.", "Error",JOptionPane.ERROR_MESSAGE);
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "Los servidores estan siendo actualizados. Reintentar mas tarde.", "Error",JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "No es posible loguearse a los servidores. Verifique sus firewalls.", "Error",JOptionPane.ERROR_MESSAGE);
         } catch (ParseException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         }

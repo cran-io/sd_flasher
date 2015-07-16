@@ -3,10 +3,16 @@ package sdflash;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -168,8 +174,8 @@ public final class Updating extends javax.swing.JFrame {
         text = IOUtils.toString( in ) ;
         IOUtils.closeQuietly(in);
         
-        JSONArray jsonArray = new JSONArray(text); 
-        int countOfGames = jsonArray.length();
+        JSONArray jsonArrayOfGames = new JSONArray(text); 
+        int countOfGames = jsonArrayOfGames.length();
         
         in = new URL("http://"+server+"//api//v1//packages//?api_token=" + supp.getApiToken()).openStream();
         
@@ -179,10 +185,16 @@ public final class Updating extends javax.swing.JFrame {
         JSONArray jsonPackages = new JSONArray(text); 
         int countOfPackages = jsonPackages.length(); 
 //      And then we create the objects.  
-        for (int i = 0; i < jsonArray.length(); i++) 
+        for (int i = 0; i < jsonArrayOfGames.length(); i++) 
         {
-            JSONObject explrObject = jsonArray.getJSONObject(i);
-            games.add(new Game(explrObject.getString("name"),explrObject.getString("description"),explrObject.getInt("id"), explrObject.getInt("version")));
+            JSONObject explrObject = jsonArrayOfGames.getJSONObject(i);
+            JSONArray imagesArray = (JSONArray) explrObject.get("images");
+            String [] images;
+            images = new String [imagesArray.length()];
+            for (int j=0;j<imagesArray.length();j++){
+                images[j] = imagesArray.getString(j);
+            }
+            games.add(new Game(explrObject.getString("name"),explrObject.getString("description"),explrObject.getInt("id"), explrObject.getInt("version"), explrObject.getString("short_description"), explrObject.getString("logo"), explrObject.getString("version_description"), explrObject.getString("company"), explrObject.getString("apk_link"), images));
         }
         
         int id = 0;
@@ -202,7 +214,7 @@ public final class Updating extends javax.swing.JFrame {
             new File(pathOfFiles).mkdir();
 //          Here we start the downloading of all the games and packages  
             do{
-                JSONObject explrObject = jsonArray.getJSONObject(gameNumber);
+                JSONObject explrObject = jsonArrayOfGames.getJSONObject(gameNumber);
                 String game = "game" + explrObject.getInt("id") + "//";
                 pathOfFiles = System.getProperty("user.dir") + File.separator + "Files" + File.separator + game;
                 folderOfFiles = new File(pathOfFiles);
@@ -210,26 +222,66 @@ public final class Updating extends javax.swing.JFrame {
                 if(!folderOfFiles.exists()){
                     new File(pathOfFiles).mkdir();
 
-//                  Here we copy the 4 images of the preview of the game 
-                    for (int i=1; i<5; i++){
+//                  Here we copy the images of the preview of the game
+                    
+                    String[] imagesOfPreview = games.get(id).getImages();
+                    
+                    for (int i=0; i<games.get(id).getImages().length; i++){
                         File fileToCopy = new File(folderOfFiles,"image" + Integer.toString(i) + ".png");
-                        URL dir = new URL("http://fdda2013.web44.net//" + game + "//image" + Integer.toString(i) + ".png");
+                        URL dir = new URL(imagesOfPreview[i]);
+//                        URL dir = new URL("http://fdda2013.web44.net//" + game + "//image" + Integer.toString(i) + ".png");
                         FileUtils.copyURLToFile(dir, fileToCopy);
                     }
 
 //                  Here we copy te game that is encrypted so it does not matter that the provider has acces to it
                     File fileToCopy = new File(folderOfFiles,"game.zip");
-                    URL dir = new URL("http://fdda2013.web44.net//" + game + "//game.zip");
+//                    URL dir = new URL("http://fdda2013.web44.net//" + game + "//game.zip");
+                    URL dir = new URL(games.get(id).getApk_link());
                     FileUtils.copyURLToFile(dir, fileToCopy);
 //                  Finally we get the version & info text an d the logo of the game
-                    fileToCopy = new File(folderOfFiles,"version.txt");
-                    dir = new URL("http://fdda2013.web44.net//" + game + "version.dat");
-                    FileUtils.copyURLToFile(dir, fileToCopy);
-                    fileToCopy = new File(folderOfFiles,"info.txt");
-                    dir = new URL("http://fdda2013.web44.net//" + game + "info.dat");
-                    FileUtils.copyURLToFile(dir, fileToCopy);
+                    
+//                    pathOfFiles = System.getProperty("user.dir") + File.separator + "Files" + File.separator + packageString;
+//                    folderOfFiles = new File(pathOfFiles);
+//                  First we check if the main file exist, if it does not we download all the files because its the first time that the provider use the program  
+//                    if(!folderOfFiles.exists()){
+//                        new File(pathOfFiles).mkdir();
+                        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                            new FileOutputStream(pathOfFiles + "/version.txt"), "utf-8"))) {
+                                writer.write(Integer.toString(games.get(id).getVersion()));
+                            } catch (UnsupportedEncodingException ex) {    
+                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (FileNotFoundException ex) {
+                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IOException ex) {
+                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+
+                    
+//                    fileToCopy = new File(folderOfFiles,"version.txt");
+//                    dir = new URL("http://fdda2013.web44.net//" + game + "version.dat");
+//                    FileUtils.copyURLToFile(dir, fileToCopy);
+                      
+                        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                            new FileOutputStream(pathOfFiles + "/info.txt"), "utf-8"))) {
+                                writer.write(games.get(id).getName() + "\n" + games.get(id).getDescription() + "\n" + 
+                                        games.get(id).getShorDescription() + " | " + games.get(id).getVersionDescription() +  " | "  + games.get(id).getCompany()  + "\n" +
+                                        games.get(id).getShorDescription() + " | " + games.get(id).getVersionDescription() +  " | "  + games.get(id).getCompany() + " | Todos los derechos reservados.");
+                            } catch (UnsupportedEncodingException ex) {    
+                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (FileNotFoundException ex) {
+                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IOException ex) {
+                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        
+//                    fileToCopy = new File(folderOfFiles,"info.txt");
+//                    dir = new URL("http://fdda2013.web44.net//" + game + "info.dat");
+//                    FileUtils.copyURLToFile(dir, fileToCopy);
+                    
+                    
                     fileToCopy = new File(folderOfFiles,"logo.png");
-                    dir = new URL("http://fdda2013.web44.net//" + game + "logo.png");
+//                    dir = new URL("http://fdda2013.web44.net//" + game + "logo.png");
+                    dir = new URL(games.get(id).getLogoURL());
                     FileUtils.copyURLToFile(dir, fileToCopy);
                 }
                 gameNumber++;
@@ -237,17 +289,31 @@ public final class Updating extends javax.swing.JFrame {
             
             do{
                 JSONObject explrObject = jsonPackages.getJSONObject(packageNumber);
-                String packageString = "pk" + explrObject.getInt("id") + "//";
+                String name = explrObject.getString("name");
+                String description = explrObject.getString("description");
+                String packageString = "pk" + explrObject.getInt("id");
                 pathOfFiles = System.getProperty("user.dir") + File.separator + "Files" + File.separator + packageString;
                 folderOfFiles = new File(pathOfFiles);
 //              First we check if the main file exist, if it does not we download all the files because its the first time that the provider use the program  
                 if(!folderOfFiles.exists()){
                     new File(pathOfFiles).mkdir();
-                    File fileToCopy = new File(folderOfFiles,"package.txt");
-                    URL dir = new URL("http://fdda2013.web44.net//" + packageString + "package.dat");
-                    FileUtils.copyURLToFile(dir, fileToCopy);
-                    fileToCopy = new File(folderOfFiles,"logo.png");
-                    dir = new URL("http://fdda2013.web44.net//" + packageString + "logo.png");
+                    try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                            new FileOutputStream(pathOfFiles + "/package.txt"), "utf-8"))) {
+                                writer.write(name + "\n" + description);
+                            } catch (UnsupportedEncodingException ex) {    
+                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (FileNotFoundException ex) {
+                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (IOException ex) {
+                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                        }   
+                    
+                    
+//                    File fileToCopy = new File(folderOfFiles,"package.txt");
+//                    URL dir = new URL("http://fdda2013.web44.net//" + packageString + "package.dat");
+//                    FileUtils.copyURLToFile(dir, fileToCopy);
+                    File fileToCopy = new File(folderOfFiles,"logo.png");
+                    URL dir = new URL(explrObject.getString("logo"));
                     FileUtils.copyURLToFile(dir, fileToCopy);
                 }
                 packageNumber++;
@@ -259,55 +325,219 @@ public final class Updating extends javax.swing.JFrame {
         else{
             gameNumber = 0;
             do{
-                JSONObject explrObject = jsonArray.getJSONObject(gameNumber);
+                JSONObject explrObject = jsonArrayOfGames.getJSONObject(gameNumber);
                 String game = "game" + explrObject.getInt("id");
                 pathOfFiles = System.getProperty("user.dir") + File.separator + "Files" + File.separator + game + File.separator ;
                 folderOfFiles = new File(pathOfFiles);
-                File fileToRead = new File(folderOfFiles,"version.txt");
-                BufferedReader br = new BufferedReader(new FileReader(fileToRead));
-                try {
-                    StringBuilder sb = new StringBuilder();
-                    String line = br.readLine();
-                    while (line != null) {
-                        sb.append(line);
-                        line = br.readLine();
-                    }
-                    String version = sb.toString();
-                    int ver = Integer.parseInt(version);
-                    for(int i=0; i<countOfGames; i++){
-                        if(games.get(i).getName().equals(game))
-//                          If the version of the game that the provider has in his computer is older than the one that is on the server we download all the new files  
-                            if (games.get(i).getVersion()>ver){
-                                differences = true;
-                                File fileToCopy = new File(folderOfFiles,"info.txt");
-                                URL dir = new URL("http://fdda2013.web44.net//" + game + "//info.txt");
-                                FileUtils.copyURLToFile(dir, fileToCopy);
-                                
-                                fileToCopy = new File(folderOfFiles,"game.zip");
-                                dir = new URL("http://fdda2013.web44.net//" + game + "//game.zip");
-                                FileUtils.copyURLToFile(dir, fileToCopy);
-                                
-                                fileToCopy = new File(folderOfFiles,"logo.png");
-                                dir = new URL("http://fdda2013.web44.net//" + game + "//logo.png");
-                                FileUtils.copyURLToFile(dir, fileToCopy);
-                                
-                                for (int j=1; j<5; j++){
-                                    fileToCopy = new File(folderOfFiles,"image" + Integer.toString(j) + ".png");
-                                    dir = new URL("http://fdda2013.web44.net//" + game + "//image" + Integer.toString(j) + ".png");
-                                    FileUtils.copyURLToFile(dir, fileToCopy);
+                if (folderOfFiles.exists()){
+                    File fileToRead = new File(folderOfFiles,"version.txt");
+                    BufferedReader br = new BufferedReader(new FileReader(fileToRead));
+                    try {
+                        StringBuilder sb = new StringBuilder();
+                        String line = br.readLine();
+                        while (line != null) {
+                            sb.append(line);
+                            line = br.readLine();
+                        }
+                        String version = sb.toString();
+                        int ver = Integer.parseInt(version);
+                        for(int i=0; i<countOfGames; i++){
+                            if(games.get(i).getName().equals(game))
+//                              If the version of the game that the provider has in his computer is older than the one that is on the server we download all the new files  
+                                if (games.get(i).getVersion()>ver){
+                                    differences = true;
+
+                                    String[] imagesOfPreview = games.get(id).getImages();
+
+                        for (int k=0; i<games.get(id).getImages().length; k++){
+                            File fileToCopy = new File(folderOfFiles,"image" + Integer.toString(k) + ".png");
+                            URL dir = new URL(imagesOfPreview[k]);
+//                            URL dir = new URL("http://fdda2013.web44.net//" + game + "//image" + Integer.toString(i) + ".png");
+                            FileUtils.copyURLToFile(dir, fileToCopy);
+                        }
+
+//                      Here we copy te game that is encrypted so it does not matter that the provider has acces to it
+                        File fileToCopy = new File(folderOfFiles,"game.zip");
+//                        URL dir = new URL("http://fdda2013.web44.net//" + game + "//game.zip");
+                        URL dir = new URL(games.get(id).getApk_link());
+                        FileUtils.copyURLToFile(dir, fileToCopy);
+//                      Finally we get the version & info text an d the logo of the game
+
+//                        pathOfFiles = System.getProperty("user.dir") + File.separator + "Files" + File.separator + packageString;
+//                        folderOfFiles = new File(pathOfFiles);
+//                      First we check if the main file exist, if it does not we download all the files because its the first time that the provider use the program  
+//                        if(!folderOfFiles.exists()){
+//                            new File(pathOfFiles).mkdir();
+                            try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                                new FileOutputStream(pathOfFiles + "/version.txt"), "utf-8"))) {
+                                    writer.write(Integer.toString(games.get(id).getVersion()));
+                                } catch (UnsupportedEncodingException ex) {    
+                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                                } catch (FileNotFoundException ex) {
+                                    Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                                } catch (IOException ex) {
+                                    Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
                                 }
-                                
-                                fileToCopy = new File(folderOfFiles,"version.txt");
-                                dir = new URL("http://fdda2013.web44.net//" + game + "//version.dat");
-                                FileUtils.copyURLToFile(dir, fileToCopy);
-                            };
+
+
+//                        fileToCopy = new File(folderOfFiles,"version.txt");
+//                        dir = new URL("http://fdda2013.web44.net//" + game + "version.dat");
+//                        FileUtils.copyURLToFile(dir, fileToCopy);
+
+                            try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                                new FileOutputStream(pathOfFiles + "/info.txt"), "utf-8"))) {
+                                    writer.write(games.get(id).getName() + "\n" + games.get(id).getDescription() + "\n" + 
+                                            games.get(id).getShorDescription() + " | " + games.get(id).getVersionDescription() +  " | "  + games.get(id).getCompany()  + "\n" +
+                                            games.get(id).getShorDescription() + " | " + games.get(id).getVersionDescription() +  " | "  + games.get(id).getCompany() + " | Todos los derechos reservados.");
+                                } catch (UnsupportedEncodingException ex) {    
+                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                                } catch (FileNotFoundException ex) {
+                                    Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                                } catch (IOException ex) {
+                                    Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+
+//                        fileToCopy = new File(folderOfFiles,"info.txt");
+//                        dir = new URL("http://fdda2013.web44.net//" + game + "info.dat");
+//                        FileUtils.copyURLToFile(dir, fileToCopy);
+
+
+                        fileToCopy = new File(folderOfFiles,"logo.png");
+//                    dir = new URL("http://fdda2013.web44.net//" + game + "logo.png");
+                        dir = new URL(games.get(id).getLogoURL());
+                        FileUtils.copyURLToFile(dir, fileToCopy);
+
+//                                File fileToCopy = new File(folderOfFiles,"info.txt");
+//                                URL dir = new URL("http://fdda2013.web44.net//" + game + "//info.txt");
+//                                FileUtils.copyURLToFile(dir, fileToCopy);
+//                                
+//                                fileToCopy = new File(folderOfFiles,"game.zip");
+//                                dir = new URL("http://fdda2013.web44.net//" + game + "//game.zip");
+//                                FileUtils.copyURLToFile(dir, fileToCopy);
+//                                
+//                                fileToCopy = new File(folderOfFiles,"logo.png");
+//                                dir = new URL("http://fdda2013.web44.net//" + game + "//logo.png");
+//                                FileUtils.copyURLToFile(dir, fileToCopy);
+//                                
+//                                for (int j=1; j<5; j++){
+//                                    fileToCopy = new File(folderOfFiles,"image" + Integer.toString(j) + ".png");
+//                                    dir = new URL("http://fdda2013.web44.net//" + game + "//image" + Integer.toString(j) + ".png");
+//                                    FileUtils.copyURLToFile(dir, fileToCopy);
+//                                }
+//                                
+//                                fileToCopy = new File(folderOfFiles,"version.txt");
+//                                dir = new URL("http://fdda2013.web44.net//" + game + "//version.dat");
+//                                FileUtils.copyURLToFile(dir, fileToCopy);
+                        
+                                };
+                        }
                     }
-                } 
-                finally {
-                    br.close();
+                    finally {
+                        br.close();
+                    }
                 }
+                else{
+                    new File(pathOfFiles).mkdir();
+
+//                  Here we copy the images of the preview of the game
+                    
+                    String[] imagesOfPreview = games.get(id).getImages();
+                    
+                    for (int i=0; i<games.get(id).getImages().length; i++){
+                        File fileToCopy = new File(folderOfFiles,"image" + Integer.toString(i) + ".png");
+                        URL dir = new URL(imagesOfPreview[i]);
+//                        URL dir = new URL("http://fdda2013.web44.net//" + game + "//image" + Integer.toString(i) + ".png");
+                        FileUtils.copyURLToFile(dir, fileToCopy);
+                    }
+
+//                  Here we copy te game that is encrypted so it does not matter that the provider has acces to it
+                    File fileToCopy = new File(folderOfFiles,"game.zip");
+//                    URL dir = new URL("http://fdda2013.web44.net//" + game + "//game.zip");
+                    URL dir = new URL(games.get(id).getApk_link());
+                    FileUtils.copyURLToFile(dir, fileToCopy);
+//                  Finally we get the version & info text an d the logo of the game
+                    
+//                    pathOfFiles = System.getProperty("user.dir") + File.separator + "Files" + File.separator + packageString;
+//                    folderOfFiles = new File(pathOfFiles);
+//                  First we check if the main file exist, if it does not we download all the files because its the first time that the provider use the program  
+//                    if(!folderOfFiles.exists()){
+//                        new File(pathOfFiles).mkdir();
+                        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                            new FileOutputStream(pathOfFiles + "/version.txt"), "utf-8"))) {
+                                writer.write(Integer.toString(games.get(id).getVersion()));
+                            } catch (UnsupportedEncodingException ex) {    
+                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (FileNotFoundException ex) {
+                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IOException ex) {
+                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+
+                    
+//                    fileToCopy = new File(folderOfFiles,"version.txt");
+//                    dir = new URL("http://fdda2013.web44.net//" + game + "version.dat");
+//                    FileUtils.copyURLToFile(dir, fileToCopy);
+                      
+                        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                            new FileOutputStream(pathOfFiles + "/info.txt"), "utf-8"))) {
+                                writer.write(games.get(id).getName() + "\n" + games.get(id).getDescription() + "\n" + 
+                                        games.get(id).getShorDescription() + " | " + games.get(id).getVersionDescription() +  " | "  + games.get(id).getCompany()  + "\n" +
+                                        games.get(id).getShorDescription() + " | " + games.get(id).getVersionDescription() +  " | "  + games.get(id).getCompany() + " | Todos los derechos reservados.");
+                            } catch (UnsupportedEncodingException ex) {    
+                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (FileNotFoundException ex) {
+                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IOException ex) {
+                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        
+//                    fileToCopy = new File(folderOfFiles,"info.txt");
+//                    dir = new URL("http://fdda2013.web44.net//" + game + "info.dat");
+//                    FileUtils.copyURLToFile(dir, fileToCopy);
+                    
+                    
+                    fileToCopy = new File(folderOfFiles,"logo.png");
+//                    dir = new URL("http://fdda2013.web44.net//" + game + "logo.png");
+                    dir = new URL(games.get(id).getLogoURL());
+                    FileUtils.copyURLToFile(dir, fileToCopy);
+                }
+                
                 gameNumber++;
             }while(gameNumber<countOfGames);
+            
+            packageNumber = 0;
+            
+            do{
+                JSONObject explrObject = jsonPackages.getJSONObject(packageNumber);
+                String name = explrObject.getString("name");
+                String description = explrObject.getString("description");
+                String packageString = "pk" + explrObject.getInt("id");
+                pathOfFiles = System.getProperty("user.dir") + File.separator + "Files" + File.separator + packageString;
+                folderOfFiles = new File(pathOfFiles);
+//              First we check if the main file exist, if it does not we download all the files because its the first time that the provider use the program  
+                if(!folderOfFiles.exists()){
+                    new File(pathOfFiles).mkdir();
+                    try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                            new FileOutputStream(pathOfFiles + "/package.txt"), "utf-8"))) {
+                                writer.write(name + "\n" + description);
+                            } catch (UnsupportedEncodingException ex) {    
+                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (FileNotFoundException ex) {
+                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (IOException ex) {
+                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                        }   
+                    
+                    
+//                    File fileToCopy = new File(folderOfFiles,"package.txt");
+//                    URL dir = new URL("http://fdda2013.web44.net//" + packageString + "package.dat");
+//                    FileUtils.copyURLToFile(dir, fileToCopy);
+                    File fileToCopy = new File(folderOfFiles,"logo.png");
+                    URL dir = new URL(explrObject.getString("logo"));
+                    FileUtils.copyURLToFile(dir, fileToCopy);
+                }
+                packageNumber++;
+            }while(packageNumber<countOfPackages);
             
         }
 //      Finally we use "if" in order to put the text labels that are acording to the boolenas values.

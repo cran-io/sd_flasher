@@ -82,7 +82,7 @@ public class Flasher extends JFrame{
         
         for (int i = 0; i < packages.size(); i++) {
             ar.add(packages.get(i).toString());
-            model.add(i,packages.get(i).toString() + " " + packages.get(i).getPrice());
+            model.add(i,packages.get(i).toString() + " - precio: " + packages.get(i).getPrice());
         } 
         
         int totalPrice = 0;
@@ -396,21 +396,28 @@ public class Flasher extends JFrame{
  
                             if (!file.exists()) {
                                     file.createNewFile();
+                                    FileWriter fw = new FileWriter(file.getAbsoluteFile());
+                                    BufferedWriter bw = new BufferedWriter(fw);
+                                    bw.write(key);
+                                    bw.close();
                             }
                             
-                            FileWriter fw = new FileWriter(file.getAbsoluteFile());
-                            BufferedWriter bw = new BufferedWriter(fw);
-                            bw.write(key);
-                            bw.close();
+                            else{
+                                file = new File(pathOfDestination + "/key"+ i +".txt");
+                                FileWriter fw = new FileWriter(file.getAbsoluteFile());
+                                BufferedWriter bw = new BufferedWriter(fw);
+                                bw.write(key);
+                                bw.close();
+                            }
                          
                             
-                        } catch (UnsupportedEncodingException ex) {
-                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (IOException ex) {
-                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (JSONException ex) {
-                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
-                        }
+                            } catch (UnsupportedEncodingException ex) {
+                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IOException ex) {
+                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (JSONException ex) {
+                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                         
                         try (Writer writer = new BufferedWriter(new OutputStreamWriter(
                             new FileOutputStream(pathOfDestination + "/open.txt"), "utf-8"))) {
@@ -475,22 +482,22 @@ public class Flasher extends JFrame{
                 newSeries[i] = salesPackages[i];
             }
             newSeries[newSeries.length - 1] = packages.get(gameToSale).getId();
-            salesPackages = newSeries;
+            salesPackages = newSeries; 
             
             packagesToSale.add(controlPackages, packages.get(gameToSale).toString());
             controlPackages ++;
             toFlashList.setModel(packagesToSale);
             
-            int itemToDelete = packageList.getSelectedIndex();
-            
-            DefaultListModel model2 = new DefaultListModel();
-            
-            for (int i = 0; i < packages.size(); i++) {
-                if (itemToDelete!=i) {
-                    model2.add(i,packages.get(i).toString() + " " + packages.get(i).getPrice());
-                }
-            } 
-            packageList.setModel(model2);
+//            int itemToDelete = packageList.getSelectedIndex();
+//            
+//            DefaultListModel model2 = new DefaultListModel();
+//            
+//            for (int i = 0; i < packages.size(); i++) {
+//                if (itemToDelete!=i) {
+//                    model2.add(i,packages.get(i).toString() + " " + packages.get(i).getPrice());
+//                }
+//            } 
+//            packageList.setModel(model2);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
