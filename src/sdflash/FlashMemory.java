@@ -55,8 +55,8 @@ public class FlashMemory extends javax.swing.JFrame {
         
         for(File path:paths)
         {
-//            jComboBox1.addItem(("Drive Name: "+path+"       Description: "+fsv.getSystemTypeDescription(path)));
-            jComboBox1.addItem(path);
+            jComboBox1.addItem(("Drive Name: "+path+"       Description: "+fsv.getSystemTypeDescription(path)));
+//            jComboBox1.addItem(path);
         }
         
     }
@@ -154,6 +154,9 @@ public class FlashMemory extends javax.swing.JFrame {
         String pathOfDestination = sn + "games";
         File fileToCopy= new File(pathOfCopy);
         File to = new File(pathOfDestination);
+        if (!to.exists()){
+            new File(pathOfDestination).mkdir();
+        }
         try {
             FileUtils.copyDirectory(fileToCopy, to);
             FileUtils.deleteDirectory(fileToCopy);

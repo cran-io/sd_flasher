@@ -365,16 +365,19 @@ public class Flasher extends JFrame{
                 File fileToCopy= new File(pathOfDestination);
                 if(!fileToCopy.exists()) new File(pathOfDestination).mkdir();
                 
+//              Here we copy the packages that the provider is selling
                 for(int j=0; j<packages.size(); j++){
                     pathOfPackage = System.getProperty("user.dir") + File.separator + "Files" + File.separator + File.separator + "pk" + packages.get(j).getId();
                     pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j).getId();
                     fileToCopy= new File(pathOfDestination);
                     File from = new File(pathOfPackage);
+                    
                     try {
                         FileUtils.copyDirectory(from, fileToCopy);
                     } catch (IOException ex) {
                         Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                    
                     if(packages.get(j).getId()==salesPackages[i]){
                         HttpClient httpClient = HttpClientBuilder.create().build();
                         String postUrl = "http://"+server+"/api/v1/packages/"+ packages.get(0).getId()+"/buy";
@@ -447,6 +450,12 @@ public class Flasher extends JFrame{
                             fileToCopy= new File(pathOfDestination);
                             from = new File(pathOfGames);
                             FileUtils.copyDirectory(from, fileToCopy);
+                            if(packages.get(j).getId()!=salesPackages[i]){
+                                pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j).getId() + File.separator +"game" + explrObject2.getInt("id") + File.separator + "game.zip";
+                                File fileToDelete= new File(pathOfDestination);
+                                fileToDelete.delete();
+                                
+                            }
                         }
                     } catch (MalformedURLException ex) {
                         Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
@@ -457,6 +466,54 @@ public class Flasher extends JFrame{
                     }
                     
                 }
+                
+//              Here we copy the rest of the packages
+//                for(int j2=0; j2<packages.size(); j2++){
+//                    
+//                    pathOfPackage = System.getProperty("user.dir") + File.separator + "Files" + File.separator + File.separator + "pk" + packages.get(j2).getId();
+//                    pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j2).getId();
+//                    fileToCopy= new File(pathOfDestination);
+//                    File from = new File(pathOfPackage);
+//
+//                    if(!fileToCopy.exists()){
+//                        new File(pathOfDestination).mkdir();
+//                        try {
+//                            FileUtils.copyDirectory(from, fileToCopy);
+//                            InputStream in;
+//                            in = new URL("http://"+server+"//api//v1//packages//" + packages.get(j2).getId() + "//?api_token=" + supplier.getApiToken()).openStream();
+//                            String text = IOUtils.toString( in ) ;
+//                            IOUtils.closeQuietly(in);
+//                            JSONObject obj = new JSONObject(text);
+//                            JSONArray jsonPackagesGames = obj.getJSONArray("games");
+//                            int countOfGamesInPackages = jsonPackagesGames.length();
+//                            System.out.println("esto si lo hizo");
+//                            for(int k=0;k<countOfGamesInPackages; k++){
+//                                JSONObject explrObject2 = jsonPackagesGames.getJSONObject(k);
+//                                String pathOfGames = System.getProperty("user.dir") + File.separator + "Files" + File.separator + "game" + explrObject2.getInt("id");
+//                                pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j2).getId() + File.separator +"game" + explrObject2.getInt("id");
+//                                
+//                                fileToCopy= new File(pathOfDestination);
+//                                from = new File(pathOfGames);
+//                                FileUtils.copyDirectory(from, fileToCopy);
+//                                
+//                                pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j2).getId() + File.separator +"game" + explrObject2.getInt("id")+ File.separator +"/game.zip";
+//                                System.out.println("esto lo hace");
+//                                System.out.println(pathOfDestination);
+//                                File fileToDelete= new File(pathOfDestination);
+//                                fileToDelete.delete();
+//                                System.out.println(fileToDelete.getAbsolutePath());
+////                                FileUtils.deleteDirectory(fileToDelete);
+//                            }
+//                        }
+//                         catch (MalformedURLException ex) {
+//                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+//                        } catch (IOException ex) {
+//                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+//                        } catch (JSONException ex) {
+//                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+//                        }
+//                    }
+//                }
                 
                 this.setVisible(false);
                 FlashMemory fm = new FlashMemory(supplier,packages);
