@@ -1,5 +1,6 @@
 package sdflash;
 
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -43,6 +44,7 @@ public final class Updating extends javax.swing.JFrame {
     public Updating(Supplier supp){
 //      Here we initialize some objects and variables.  
         initComponents();
+        setIcon();
         this.setLocationRelativeTo(null);
         jLabel1.setText("Verificando versiones...");
         this.supp = supp;
@@ -552,6 +554,10 @@ public final class Updating extends javax.swing.JFrame {
         
         tLogin.start();
         
+    }
+    
+    private void setIcon() {
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("logo.png")));
     }
     
 }
