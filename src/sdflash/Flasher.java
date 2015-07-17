@@ -454,7 +454,6 @@ public class Flasher extends JFrame{
                                 pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j).getId() + File.separator +"game" + explrObject2.getInt("id") + File.separator + "game.zip";
                                 File fileToDelete= new File(pathOfDestination);
                                 fileToDelete.delete();
-                                
                             }
                         }
                     } catch (MalformedURLException ex) {

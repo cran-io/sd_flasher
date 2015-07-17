@@ -55,8 +55,8 @@ public class FlashMemory extends javax.swing.JFrame {
         
         for(File path:paths)
         {
-            jComboBox1.addItem(("Drive Name: "+path+"       Description: "+fsv.getSystemTypeDescription(path)));
-//            jComboBox1.addItem(path);
+//            jComboBox1.addItem(("Drive Name: "+path+"       Description: "+fsv.getSystemTypeDescription(path)));
+            jComboBox1.addItem(path);
         }
         
     }
@@ -203,8 +203,8 @@ public class FlashMemory extends javax.swing.JFrame {
         
         for(File path:paths)
         {
-//            jComboBox1.addItem(("Drive Name: "+path+"       Description: "+fsv.getSystemTypeDescription(path)));
-            jComboBox1.addItem(path);
+            jComboBox1.addItem(("Drive Name: "+path+"       Description: "+fsv.getSystemTypeDescription(path)));
+//            jComboBox1.addItem(path);
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
