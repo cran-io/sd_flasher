@@ -380,7 +380,7 @@ public class Flasher extends JFrame{
                     
                     if(packages.get(j).getId()==salesPackages[i]){
                         HttpClient httpClient = HttpClientBuilder.create().build();
-                        String postUrl = "http://"+server+"/api/v1/packages/"+ packages.get(0).getId()+"/buy";
+                        String postUrl = "http://"+server+"/api/v1/packages/"+ packages.get(j).getId()+"/buy";
                         HttpPost post = new HttpPost(postUrl);
                         StringEntity  postingString;            
                         try {
@@ -450,10 +450,14 @@ public class Flasher extends JFrame{
                             fileToCopy= new File(pathOfDestination);
                             from = new File(pathOfGames);
                             FileUtils.copyDirectory(from, fileToCopy);
-                            if(packages.get(j).getId()!=salesPackages[i]){
-                                pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j).getId() + File.separator +"game" + explrObject2.getInt("id") + File.separator + "game.zip";
-                                File fileToDelete= new File(pathOfDestination);
-                                fileToDelete.delete();
+                            if((packages.get(j).getId()!=salesPackages[i])){
+                                String pathOfPackageToCopy = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j).getId() + File.separator + "key.txt";
+                                File filePackageToCopy= new File(pathOfPackageToCopy);
+                                if(!filePackageToCopy.exists()){
+                                    pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j).getId() + File.separator +"game" + explrObject2.getInt("id") + File.separator + "game.zip";
+                                    File fileToDelete= new File(pathOfDestination);
+                                    fileToDelete.delete();
+                                }
                             }
                         }
                     } catch (MalformedURLException ex) {
