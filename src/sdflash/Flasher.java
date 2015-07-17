@@ -514,11 +514,12 @@ public class Flasher extends JFrame{
 //                    }
 //                }
                 
-                this.setVisible(false);
+                
+            }
+            this.setVisible(false);
                 FlashMemory fm = new FlashMemory(supplier,packages);
                 fm.show();
                 this.dispose();
-            }
         }
     }//GEN-LAST:event_flashSDCardActionPerformed
 
