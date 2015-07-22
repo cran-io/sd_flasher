@@ -25,6 +25,7 @@ import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import static sdflash.Flasher.packages;
 
 public final class Updating extends javax.swing.JFrame {
 //  Here we declare the variables that we are going to use in all the class  
@@ -142,7 +143,7 @@ public final class Updating extends javax.swing.JFrame {
                     jLabel1.setText("Ingresando al sistema...");
                     Flasher flash;
                     try {
-                        flash = new Flasher(supp, packages);
+                        flash = new Flasher(supp, packages, games);
                         flash.show();
                     } catch (JSONException ex) {
                         Logger.getLogger(Updating.class.getName()).log(Level.SEVERE, null, ex);
@@ -182,11 +183,17 @@ public final class Updating extends javax.swing.JFrame {
         in = new URL("http://"+server+"//api//v1//packages//?api_token=" + supp.getApiToken()).openStream();
         
         text = IOUtils.toString( in ) ;
-        IOUtils.closeQuietly(in);
-        
+        IOUtils.closeQuietly(in);        
         JSONArray jsonPackages = new JSONArray(text); 
         int countOfPackages = jsonPackages.length(); 
-//      And then we create the objects.  
+//      And then we create the objects.
+        
+        for (int i = 0; i < jsonPackages.length(); i++) 
+        {
+            JSONObject explrObject = jsonPackages.getJSONObject(i);
+            packages.add(new Package(explrObject.getString("name"), explrObject.getInt("id"),explrObject.getInt("price")));
+        }
+        
         for (int i = 0; i < jsonArrayOfGames.length(); i++) 
         {
             JSONObject explrObject = jsonArrayOfGames.getJSONObject(i);
@@ -196,16 +203,33 @@ public final class Updating extends javax.swing.JFrame {
             for (int j=0;j<imagesArray.length();j++){
                 images[j] = imagesArray.getString(j);
             }
+            
+            
+            
+//            int[] newSeries = new int[salesPackages.length + 1];
+//            for (int i = 0; i < salesPackages.length; i++){
+//                newSeries[i] = salesPackages[i];
+//            }
+//            newSeries[newSeries.length - 1] = packages.get(gameToSale).getId();
+//            salesPackages = newSeries;
+            
             games.add(new Game(explrObject.getString("name"),explrObject.getString("description"),explrObject.getInt("id"), explrObject.getInt("version"), explrObject.getString("short_description"), explrObject.getString("logo"), explrObject.getString("version_description"), explrObject.getString("company"), explrObject.getString("apk_link"), images));
+        }
+        for(int i = 0; i<jsonPackages.length();i++){
+            in = new URL("http://"+server+"//api//v1//packages//" + packages.get(i).getId() + "//?api_token=" + supp.getApiToken()).openStream();
+            text = IOUtils.toString( in );
+            IOUtils.closeQuietly(in);
+            JSONObject obj = new JSONObject(text);
+            JSONArray jsonPackagesGames = obj.getJSONArray("games");
+            int countOfGamesInPackages = jsonPackagesGames.length();
+            packages.get(i).setSizeOfGames(countOfGamesInPackages);
+            for(int k=0;k<countOfGamesInPackages; k++){
+                JSONObject explrObject2 = jsonPackagesGames.getJSONObject(k);
+                packages.get(i).addGame(k,explrObject2.getInt("id"));
+            }
         }
         
         int id = 0;
-        
-        for (int i = 0; i < jsonPackages.length(); i++) 
-        {
-            JSONObject explrObject = jsonPackages.getJSONObject(i);
-            packages.add(new Package(explrObject.getString("name"), explrObject.getInt("id"),explrObject.getInt("price")));
-        }
         
         String pathOfFiles = System.getProperty("user.dir") + File.separator + "Files" + File.separator;
         File folderOfFiles = new File(pathOfFiles);

@@ -38,13 +38,15 @@ public class FlashMemory extends javax.swing.JFrame {
     
     Login login;
     static List<Package> packages = new ArrayList<Package>();
+    static List<Game> games = new ArrayList<Game>();
     Supplier supplier;
     String server = "104.236.88.136:3000";
     
-    public FlashMemory(Supplier supp, List<Package> packagesListSent) {
+    public FlashMemory(Supplier supp, List<Package> packagesListSent, List<Game> gamesListSent) {
         initComponents();
         this.supplier = supp;
         this.packages = packagesListSent;
+        this.games = gamesListSent;
         setIcon();
         this.setLocationRelativeTo(null);
         
@@ -186,7 +188,7 @@ public class FlashMemory extends javax.swing.JFrame {
         }
         
         try {                    
-            flash = new Flasher(supplier, packages);
+            flash = new Flasher(supplier, packages,games);
             flash.show();
         } catch (JSONException ex) {
             Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);

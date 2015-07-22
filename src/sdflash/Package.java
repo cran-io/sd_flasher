@@ -14,6 +14,8 @@ class Package
     private final int id;
     private final int price;
     private String priceText;
+    private int[] gamesInPackage;
+    int gamesCounter = 0;
     
     public Package(String name, int value, int priceValue)
     {
@@ -43,5 +45,24 @@ class Package
     public int getFullPrice(){
         return price;
     }
+
+    public void setSizeOfGames(int size) {
+        gamesInPackage = new int[size];
+    }
+
+    public void addGame(int k, int aInt) {
+        gamesInPackage[gamesCounter] = aInt;
+        gamesCounter++;
+    }
+
+    public int getSizeOfGames() {
+        return this.gamesCounter;
+    }
+    
+    public int[] getGamesInPackage(){
+        return this.gamesInPackage;
+    }
+    
+    
     
 }

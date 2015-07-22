@@ -25,6 +25,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileSystemView;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
@@ -60,13 +61,26 @@ public class Flasher extends JFrame{
         initComponents();   
     }
 
-    public Flasher(final Supplier supplier, final List<Package> packagesListSent) throws JSONException {
+    public Flasher(final Supplier supplier, final List<Package> packagesListSent, final List<Game> gamesListSent) throws JSONException {
 //      First we initialize the values of the variables and another for the JFrame.  
         initComponents();
         setIcon();
+        
+        File[] paths;
+        FileSystemView fsv = FileSystemView.getFileSystemView();
+        
+        paths = File.listRoots();
+        
+        for(File path:paths)
+        {
+//            jComboBox1.addItem(("Drive Name: "+path+"       Description: "+fsv.getSystemTypeDescription(path)));
+            jComboBox2.addItem(path);
+        }
+        
         this.setLocationRelativeTo(null);
         this.supplier = supplier;        
         this.packages = packagesListSent;
+        this.games = gamesListSent;
         int wallet = this.supplier.getWallet()/100;
         int cents = this.supplier.getWallet() - wallet*100;
         String text = "";
@@ -101,34 +115,53 @@ public class Flasher extends JFrame{
                     JList source = (JList)ev.getSource();
                     selectedOption = source.getSelectedValue().toString();
                     gameSelected = source.getSelectedIndex();
-
+                    DefaultListModel gamesModel = new DefaultListModel();
                     for (int i = 0; i < packages.size(); i++) {
                         if(packages.get(i).toString().equals(ar.get(gameSelected))){
                             gameToSale = i;
-                            int id = packages.get(i).getId();
-                            try {
-                                DefaultListModel gamesModel = new DefaultListModel();
-                                InputStream in = new URL("http://"+server+"//api//v1//packages//"+Integer.toString(id)+"//?api_token=" + supplier.getApiToken()).openStream();
-                                String text = IOUtils.toString( in ) ;
-                                IOUtils.closeQuietly(in);
-                                    
-                                JSONObject obj = new JSONObject(text);
-                                JSONArray jsonPackagesGames = obj.getJSONArray("games");
-                                int countOfGamesInPackages = jsonPackagesGames.length();
-                                for(int j=0;j<countOfGamesInPackages; j++){
-                                    JSONObject explrObject2 = jsonPackagesGames.getJSONObject(j);
-                                    gamesModel.add(j,explrObject2.getString("name"));
+//                            System.out.println(packages.get(i).getId());
+//                            int id = packages.get(i).getId();
+                            int idOfGames[] = new int[packages.get(i).getSizeOfGames()];
+                            idOfGames = packages.get(i).getGamesInPackage();
+                            int controlUbication = 0;
+                            for(int j=0;j<games.size();j++)
+                            {
+                                for(int k=0;k<idOfGames.length;k++){
+                                    if(idOfGames[k]==games.get(j).getIDpackage()){
+                                        gamesModel.add(controlUbication,games.get(j).getName());
+                                        controlUbication++;
+                                    }
                                 }
-                                gamesCombo.setModel(gamesModel);
-                            } catch (MalformedURLException ex) {
-                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
-                            } catch (IOException ex) {
-                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
-                            } catch (JSONException ex) {
-                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+//                                System.out.println(games.get(j).getIDpackage());
+//                                if (games.get(j).getIDpackage()==packages.get(i).getId())
+//                                {
+//                                    gamesModel.add(j,games.get(j).getName());
+//                                }
                             }
+//                            try {
+//                                DefaultListModel gamesModel = new DefaultListModel();
+//                                InputStream in = new URL("http://"+server+"//api//v1//packages//"+Integer.toString(id)+"//?api_token=" + supplier.getApiToken()).openStream();
+//                                String text = IOUtils.toString( in ) ;
+//                                IOUtils.closeQuietly(in);
+//                                    
+//                                JSONObject obj = new JSONObject(text);
+//                                JSONArray jsonPackagesGames = obj.getJSONArray("games");
+//                                int countOfGamesInPackages = jsonPackagesGames.length();
+//                                for(int j=0;j<countOfGamesInPackages; j++){
+//                                    JSONObject explrObject2 = jsonPackagesGames.getJSONObject(j);
+//                                    gamesModel.add(j,explrObject2.getString("name"));
+//                                }
+//                                gamesCombo.setModel(gamesModel);
+//                            } catch (MalformedURLException ex) {
+//                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+//                            } catch (IOException ex) {
+//                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+//                            } catch (JSONException ex) {
+//                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+//                            }
                         }                    
                     }
+                    gamesCombo.setModel(gamesModel);
                 }
             }
         });
@@ -154,12 +187,14 @@ public class Flasher extends JFrame{
         jPanel3 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         packageList = new javax.swing.JList();
+        jButton1 = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         toFlashList = new javax.swing.JList();
         labelPrice = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
         buttonClear = new javax.swing.JButton();
+        jComboBox2 = new javax.swing.JComboBox();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Tabi Games SD Flasher");
@@ -191,7 +226,7 @@ public class Flasher extends JFrame{
                 .addGap(2, 2, 2))
         );
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Juegos incluidos", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.DEFAULT_POSITION));
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Aplicaciones", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Al Bayan", 0, 24))); // NOI18N
 
         gamesCombo.setModel(new javax.swing.AbstractListModel() {
             String[] strings = {  };
@@ -212,8 +247,7 @@ public class Flasher extends JFrame{
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addComponent(jScrollPane1)
                 .addContainerGap())
         );
@@ -236,6 +270,13 @@ public class Flasher extends JFrame{
 
         jScrollPane2.setViewportView(packageList);
 
+        jButton1.setText("AGREGAR A COMPRA>>");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -244,12 +285,14 @@ public class Flasher extends JFrame{
                 .addContainerGap()
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 224, Short.MAX_VALUE)
                 .addContainerGap())
+            .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(jScrollPane2)
-                .addContainerGap())
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton1))
         );
 
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Venta", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Al Bayan", 0, 24))); // NOI18N
@@ -276,17 +319,19 @@ public class Flasher extends JFrame{
         labelPrice.setFont(new java.awt.Font("Lucida Grande", 0, 16)); // NOI18N
         labelPrice.setText("Precio:");
 
-        jButton1.setText("Agregar a compra>>");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-
-        buttonClear.setText("<<Empezar nueva venta>>");
+        buttonClear.setText("<<EMPEZAR NUEVA VENTA>>");
         buttonClear.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 buttonClearActionPerformed(evt);
+            }
+        });
+
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Seleccione SD Card a flashear" }));
+
+        jButton2.setText("<<RECARGAR");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
             }
         });
 
@@ -297,23 +342,28 @@ public class Flasher extends JFrame{
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(flashSDCard, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(labelPrice, javax.swing.GroupLayout.DEFAULT_SIZE, 247, Short.MAX_VALUE))
-                        .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(buttonClear, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(exitButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(labelPrice, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 13, Short.MAX_VALUE))
+                            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(flashSDCard, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(buttonClear, javax.swing.GroupLayout.DEFAULT_SIZE, 351, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jComboBox2, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton2))
+                            .addComponent(exitButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -325,17 +375,15 @@ public class Flasher extends JFrame{
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(labelPrice, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(jButton1)))))
+                        .addComponent(labelPrice, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(flashSDCard)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(flashSDCard)
+                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(exitButton)
@@ -357,173 +405,159 @@ public class Flasher extends JFrame{
             JOptionPane.showMessageDialog(null, "Debe elejir al menos un paquete para realizar una venta.", "ERROR: Ningun paquete agregado", 1);
         }
         else{
-            for(int i=0;i<salesPackages.length;i++){
-                
-                String pathOfPackage = System.getProperty("user.dir") + File.separator + "Files" + File.separator;
-                String pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator;
-                
-                File fileToCopy= new File(pathOfDestination);
-                if(!fileToCopy.exists()) new File(pathOfDestination).mkdir();
-                
-//              Here we copy the packages that the provider is selling
-                for(int j=0; j<packages.size(); j++){
-                    pathOfPackage = System.getProperty("user.dir") + File.separator + "Files" + File.separator + File.separator + "pk" + packages.get(j).getId();
-                    pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j).getId();
-                    fileToCopy= new File(pathOfDestination);
-                    File from = new File(pathOfPackage);
-                    
-                    try {
-                        FileUtils.copyDirectory(from, fileToCopy);
-                    } catch (IOException ex) {
-                        Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    
-                    if(packages.get(j).getId()==salesPackages[i]){
-                        HttpClient httpClient = HttpClientBuilder.create().build();
-                        String postUrl = "http://"+server+"/api/v1/packages/"+ packages.get(j).getId()+"/buy";
-                        HttpPost post = new HttpPost(postUrl);
-                        StringEntity  postingString;            
+            if(jComboBox2.getSelectedItem().toString().equals("Seleccione SD Card a flashear")){
+                JOptionPane.showMessageDialog(null, "Debe elejir una micro SD para flashear.", "ERROR: Ninguna tarjeta seleccionada", 1);
+            }
+            else{
+                for(int i=0;i<salesPackages.length;i++){
+
+                    String pathOfPackage = System.getProperty("user.dir") + File.separator + "Files" + File.separator;
+                    String pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator;
+
+                    File fileToCopy= new File(pathOfDestination);
+                    if(!fileToCopy.exists()) new File(pathOfDestination).mkdir();
+
+    //              Here we copy the packages that the provider is selling
+                    for(int j=0; j<packages.size(); j++){
+                        pathOfPackage = System.getProperty("user.dir") + File.separator + "Files" + File.separator + File.separator + "pk" + packages.get(j).getId();
+                        pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j).getId();
+                        fileToCopy= new File(pathOfDestination);
+                        File from = new File(pathOfPackage);
+
                         try {
-                            JSONObject obj = new JSONObject();
-                            obj.put("api_token", supplier.getApiToken());
-                            Random rand = new Random();
-                            int value  = rand.nextInt((9999999 - 999) + 1) + 123;
-                            String key = Integer.toString(value);
-                            obj.put("key", key);
-                            postingString = new StringEntity(obj.toString());
-                            post.setEntity(postingString);
-                            post.setHeader("Content-type", "application/json");
-                            HttpResponse  response = httpClient.execute(post);
-                            
-                            File file = new File(pathOfDestination + "/key.txt");
- 
-                            if (!file.exists()) {
-                                    file.createNewFile();
-                                    FileWriter fw = new FileWriter(file.getAbsoluteFile());
-                                    BufferedWriter bw = new BufferedWriter(fw);
-                                    bw.write(key);
-                                    bw.close();
-                            }
-                            
-                            else{
-                                file = new File(pathOfDestination + "/key"+ i +".txt");
-                                FileWriter fw = new FileWriter(file.getAbsoluteFile());
-                                BufferedWriter bw = new BufferedWriter(fw);
-                                bw.write(key);
-                                bw.close();
-                            }
-                         
-                            
-                            } catch (UnsupportedEncodingException ex) {
-                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
-                            } catch (IOException ex) {
-                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
-                            } catch (JSONException ex) {
-                                Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        
-                        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                            new FileOutputStream(pathOfDestination + "/open.txt"), "utf-8"))) {
-                                writer.write("1");
-                            } catch (UnsupportedEncodingException ex) {    
+                            FileUtils.copyDirectory(from, fileToCopy);
+                        } catch (IOException ex) {
                             Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (FileNotFoundException ex) {
+                        }
+
+                        InputStream in;
+                        try {
+                            in = new URL("http://"+server+"//api//v1//packages//" + packages.get(j).getId() + "//?api_token=" + supplier.getApiToken()).openStream();
+                            String text = IOUtils.toString( in ) ;
+                            IOUtils.closeQuietly(in);
+                            JSONObject obj = new JSONObject(text);
+                            JSONArray jsonPackagesGames = obj.getJSONArray("games");
+                            int countOfGamesInPackages = jsonPackagesGames.length();
+                            for(int k=0;k<countOfGamesInPackages; k++){
+                                JSONObject explrObject2 = jsonPackagesGames.getJSONObject(k);
+                                String pathOfGames = System.getProperty("user.dir") + File.separator + "Files" + File.separator + "game" + explrObject2.getInt("id");
+                                pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j).getId() + File.separator +"game" + explrObject2.getInt("id");
+                                fileToCopy= new File(pathOfDestination);
+                                from = new File(pathOfGames);
+                                FileUtils.copyDirectory(from, fileToCopy);
+                                if((packages.get(j).getId()!=salesPackages[i])){
+                                    String pathOfPackageToCopy = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j).getId() + File.separator + "key.txt";
+                                    File filePackageToCopy= new File(pathOfPackageToCopy);
+                                    if(!filePackageToCopy.exists()){
+                                        pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j).getId() + File.separator +"game" + explrObject2.getInt("id") + File.separator + "game.zip";
+                                        File fileToDelete= new File(pathOfDestination);
+                                        fileToDelete.delete();
+                                    }
+                                }
+                            }
+                        } catch (MalformedURLException ex) {
                             Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
                         } catch (IOException ex) {
                             Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
-                        }    
-                        
+                        } catch (JSONException ex) {
+                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+
                     }
-                    
-                    InputStream in;
-                    try {
-                        in = new URL("http://"+server+"//api//v1//packages//" + packages.get(j).getId() + "//?api_token=" + supplier.getApiToken()).openStream();
-                        String text = IOUtils.toString( in ) ;
-                        IOUtils.closeQuietly(in);
-                        JSONObject obj = new JSONObject(text);
-                        JSONArray jsonPackagesGames = obj.getJSONArray("games");
-                        int countOfGamesInPackages = jsonPackagesGames.length();
-                        for(int k=0;k<countOfGamesInPackages; k++){
-                            JSONObject explrObject2 = jsonPackagesGames.getJSONObject(k);
-                            String pathOfGames = System.getProperty("user.dir") + File.separator + "Files" + File.separator + "game" + explrObject2.getInt("id");
-                            pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j).getId() + File.separator +"game" + explrObject2.getInt("id");
-                            fileToCopy= new File(pathOfDestination);
-                            from = new File(pathOfGames);
-                            FileUtils.copyDirectory(from, fileToCopy);
-                            if((packages.get(j).getId()!=salesPackages[i])){
-                                String pathOfPackageToCopy = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j).getId() + File.separator + "key.txt";
-                                File filePackageToCopy= new File(pathOfPackageToCopy);
-                                if(!filePackageToCopy.exists()){
-                                    pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j).getId() + File.separator +"game" + explrObject2.getInt("id") + File.separator + "game.zip";
-                                    File fileToDelete= new File(pathOfDestination);
-                                    fileToDelete.delete();
-                                }
+                }
+                
+                String microSD = jComboBox2.getSelectedItem().toString();
+                File aDrive = new File(microSD);
+//                long freeSpace = aDrive.length();
+                
+                String folderToCopy = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator;
+                File toCopy = new File(folderToCopy);
+                
+                long freeSpace = aDrive.getFreeSpace();
+                long freeSpace2 = FileUtils.sizeOfDirectory(toCopy);
+                
+                if(freeSpace>freeSpace2){
+                
+//                asdsadsdasdsadsdsada
+                    for(int i=0;i<salesPackages.length;i++){
+                        String pathOfPackage = System.getProperty("user.dir") + File.separator + "Files" + File.separator;
+                        String pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator;
+                        File fileToCopy= new File(pathOfDestination);
+                        if(!fileToCopy.exists()) new File(pathOfDestination).mkdir();
+    //                  Here we copy the packages that the provider is selling
+                        for(int j=0; j<packages.size(); j++){
+                            if(packages.get(j).getId()==salesPackages[i]){
+                                HttpClient httpClient = HttpClientBuilder.create().build();
+                                String postUrl = "http://"+server+"/api/v1/packages/"+ packages.get(j).getId()+"/buy";
+                                HttpPost post = new HttpPost(postUrl);
+                                StringEntity  postingString;            
+                                try {
+                                    JSONObject obj = new JSONObject();
+                                    obj.put("api_token", supplier.getApiToken());
+                                    Random rand = new Random();
+                                    int value  = rand.nextInt((9999999 - 999) + 1) + 123;
+                                    String key = Integer.toString(value);
+                                    obj.put("key", key);
+                                    postingString = new StringEntity(obj.toString());
+                                    post.setEntity(postingString);
+                                    post.setHeader("Content-type", "application/json");
+                                    HttpResponse  response = httpClient.execute(post);
+
+                                    File file = new File(pathOfDestination + "/key.txt");
+
+                                    if (!file.exists()) {
+                                            file.createNewFile();
+                                            FileWriter fw = new FileWriter(file.getAbsoluteFile());
+                                            BufferedWriter bw = new BufferedWriter(fw);
+                                            bw.write(key);
+                                            bw.close();
+                                    }
+
+                                    else{
+                                        file = new File(pathOfDestination + "/key"+ i +".txt");
+                                        FileWriter fw = new FileWriter(file.getAbsoluteFile());
+                                        BufferedWriter bw = new BufferedWriter(fw);
+                                        bw.write(key);
+                                        bw.close();
+                                    }
+
+
+                                    } catch (UnsupportedEncodingException ex) {
+                                        Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                                    } catch (IOException ex) {
+                                        Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                                    } catch (JSONException ex) {
+                                        Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
+
+                                try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                                    new FileOutputStream(pathOfDestination + "/open.txt"), "utf-8"))) {
+                                        writer.write("1");
+                                    } catch (UnsupportedEncodingException ex) {    
+                                    Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                                } catch (FileNotFoundException ex) {
+                                    Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                                } catch (IOException ex) {
+                                    Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                                }    
                             }
                         }
-                    } catch (MalformedURLException ex) {
-                        Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (IOException ex) {
-                        Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+    //                asdsadsaddsadsadadsa
+                    Flasher flash;
+                    try {                    
+                        flash = new Flasher(supplier, packages,games);
+                        flash.show();
                     } catch (JSONException ex) {
                         Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    
+                    this.dispose();
                 }
-                
-//              Here we copy the rest of the packages
-//                for(int j2=0; j2<packages.size(); j2++){
-//                    
-//                    pathOfPackage = System.getProperty("user.dir") + File.separator + "Files" + File.separator + File.separator + "pk" + packages.get(j2).getId();
-//                    pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j2).getId();
-//                    fileToCopy= new File(pathOfDestination);
-//                    File from = new File(pathOfPackage);
-//
-//                    if(!fileToCopy.exists()){
-//                        new File(pathOfDestination).mkdir();
-//                        try {
-//                            FileUtils.copyDirectory(from, fileToCopy);
-//                            InputStream in;
-//                            in = new URL("http://"+server+"//api//v1//packages//" + packages.get(j2).getId() + "//?api_token=" + supplier.getApiToken()).openStream();
-//                            String text = IOUtils.toString( in ) ;
-//                            IOUtils.closeQuietly(in);
-//                            JSONObject obj = new JSONObject(text);
-//                            JSONArray jsonPackagesGames = obj.getJSONArray("games");
-//                            int countOfGamesInPackages = jsonPackagesGames.length();
-//                            System.out.println("esto si lo hizo");
-//                            for(int k=0;k<countOfGamesInPackages; k++){
-//                                JSONObject explrObject2 = jsonPackagesGames.getJSONObject(k);
-//                                String pathOfGames = System.getProperty("user.dir") + File.separator + "Files" + File.separator + "game" + explrObject2.getInt("id");
-//                                pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j2).getId() + File.separator +"game" + explrObject2.getInt("id");
-//                                
-//                                fileToCopy= new File(pathOfDestination);
-//                                from = new File(pathOfGames);
-//                                FileUtils.copyDirectory(from, fileToCopy);
-//                                
-//                                pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j2).getId() + File.separator +"game" + explrObject2.getInt("id")+ File.separator +"/game.zip";
-//                                System.out.println("esto lo hace");
-//                                System.out.println(pathOfDestination);
-//                                File fileToDelete= new File(pathOfDestination);
-//                                fileToDelete.delete();
-//                                System.out.println(fileToDelete.getAbsolutePath());
-////                                FileUtils.deleteDirectory(fileToDelete);
-//                            }
-//                        }
-//                         catch (MalformedURLException ex) {
-//                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
-//                        } catch (IOException ex) {
-//                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
-//                        } catch (JSONException ex) {
-//                            Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
-//                        }
-//                    }
-//                }
-                
-                
+                else{
+                    long sizeNeeded = freeSpace2 /1024 / 1024;
+                    JOptionPane.showMessageDialog(null, "Debe elejir una micro SD con espacio suficiente\n El mismo debe ser de:." + sizeNeeded + " MB", "ERROR: Ninguna tarjeta seleccionada", 1);
+                }
             }
-            this.setVisible(false);
-                FlashMemory fm = new FlashMemory(supplier,packages);
-                fm.show();
-                this.dispose();
         }
     }//GEN-LAST:event_flashSDCardActionPerformed
 
@@ -567,13 +601,29 @@ public class Flasher extends JFrame{
         this.setVisible(false);
         Flasher flash;
         try {                    
-            flash = new Flasher(supplier, packages);
+            flash = new Flasher(supplier, packages, games);
             flash.show();
         } catch (JSONException ex) {
             Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
         }
         this.dispose();
     }//GEN-LAST:event_buttonClearActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        jComboBox2.removeAllItems();
+        jComboBox2.addItem("Seleccione SD Card a flashear");
+        File[] paths;
+        FileSystemView fsv = FileSystemView.getFileSystemView();
+        
+        paths = File.listRoots();
+        
+        for(File path:paths)
+        {
+//            jComboBox1.addItem(("Drive Name: "+path+"       Description: "+fsv.getSystemTypeDescription(path)));
+            jComboBox2.addItem(path);
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -616,6 +666,8 @@ public class Flasher extends JFrame{
     private javax.swing.JButton flashSDCard;
     private javax.swing.JList gamesCombo;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JComboBox jComboBox2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -624,7 +676,7 @@ public class Flasher extends JFrame{
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JLabel labelPrice;
-    private javax.swing.JList packageList;
+    public javax.swing.JList packageList;
     private javax.swing.JList toFlashList;
     private javax.swing.JLabel usernameLabel;
     private javax.swing.JLabel walletLabel;
