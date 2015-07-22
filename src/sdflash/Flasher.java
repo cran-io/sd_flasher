@@ -502,7 +502,7 @@ public class Flasher extends JFrame{
                                     post.setEntity(postingString);
                                     post.setHeader("Content-type", "application/json");
                                     HttpResponse  response = httpClient.execute(post);
-
+                                    pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + salesPackages[i];
                                     File file = new File(pathOfDestination + "/key.txt");
 
                                     if (!file.exists()) {
@@ -529,20 +529,46 @@ public class Flasher extends JFrame{
                                     } catch (JSONException ex) {
                                         Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
                                     }
-
-                                try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                                    new FileOutputStream(pathOfDestination + "/open.txt"), "utf-8"))) {
-                                        writer.write("1");
-                                    } catch (UnsupportedEncodingException ex) {    
-                                    Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
-                                } catch (FileNotFoundException ex) {
-                                    Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+                                try {
+                                    String fileName = pathOfDestination + "/package.txt";
+                                    FileWriter fw = new FileWriter(fileName,true);
+                                    fw.append("\n1");
+//                                    fw.append("1");
+                                    fw.close();
+//                                    Writer output = new BufferedWriter(new FileWriter(, true));
+//                                    output.append("1");
                                 } catch (IOException ex) {
                                     Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
-                                }    
+                                }
+//                                try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+//                                    new FileOutputStream(pathOfDestination + "/package.txt"), "utf-8"))) {
+//                                        writer.append("1");
+//                                    } catch (UnsupportedEncodingException ex) {    
+//                                    Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+//                                } catch (FileNotFoundException ex) {
+//                                    Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+//                                } catch (IOException ex) {
+//                                    Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
+//                                }    
                             }
                         }
                     }
+//                    esto es para copiar y eliminar todo
+//                    String pathOfCopy = System.getProperty("user.dir") + File.separator + "FolderToCopy";
+//                    String sn = jComboBox2.getSelectedItem().toString();
+//                    String pathOfDestination = sn + "games";
+//                    File fileToCopy= new File(pathOfCopy);
+//                    File to = new File(pathOfDestination);
+//                    if (!to.exists()){
+//                        new File(pathOfDestination).mkdir();
+//                    }
+//                    try {
+//                        FileUtils.copyDirectory(fileToCopy, to);
+//                        FileUtils.deleteDirectory(fileToCopy);
+//                    } catch (IOException ex) {
+//                        Logger.getLogger(FlashMemory.class.getName()).log(Level.SEVERE, null, ex);
+//                    } 
+                    
     //                asdsadsaddsadsadadsa
                     Flasher flash;
                     try {                    
