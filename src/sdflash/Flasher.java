@@ -81,14 +81,14 @@ public class Flasher extends JFrame{
         this.supplier = supplier;        
         this.packages = packagesListSent;
         this.games = gamesListSent;
-        int wallet = this.supplier.getWallet()/100;
-        int cents = this.supplier.getWallet() - wallet*100;
+        int wallet = this.supplier.getWallet();
+        float priceShow = (float) wallet / 100;
         String text = "";
         String name = "";
         int id = 0;
 //      Here we set the text of the labels.  
         usernameLabel.setText("Usuario: " + supplier.getName());
-        walletLabel.setText("Credito: " + Integer.toString(wallet) + "." + Integer.toString(cents));
+        walletLabel.setText("Credito: " + priceShow);
         
         DefaultListModel model = new DefaultListModel();
 
@@ -201,8 +201,10 @@ public class Flasher extends JFrame{
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Informacion de su cuenta", javax.swing.border.TitledBorder.RIGHT, javax.swing.border.TitledBorder.DEFAULT_POSITION));
 
+        usernameLabel.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
         usernameLabel.setText("jLabel1");
 
+        walletLabel.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
         walletLabel.setText("jLabel2");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -554,24 +556,25 @@ public class Flasher extends JFrame{
                         }
                     }
 //                    esto es para copiar y eliminar todo
-//                    String pathOfCopy = System.getProperty("user.dir") + File.separator + "FolderToCopy";
-//                    String sn = jComboBox2.getSelectedItem().toString();
-//                    String pathOfDestination = sn + "games";
-//                    File fileToCopy= new File(pathOfCopy);
-//                    File to = new File(pathOfDestination);
-//                    if (!to.exists()){
-//                        new File(pathOfDestination).mkdir();
-//                    }
-//                    try {
-//                        FileUtils.copyDirectory(fileToCopy, to);
-//                        FileUtils.deleteDirectory(fileToCopy);
-//                    } catch (IOException ex) {
-//                        Logger.getLogger(FlashMemory.class.getName()).log(Level.SEVERE, null, ex);
-//                    } 
+                    String pathOfCopy = System.getProperty("user.dir") + File.separator + "FolderToCopy";
+                    String sn = jComboBox2.getSelectedItem().toString();
+                    String pathOfDestination = sn + "games";
+                    File fileToCopy= new File(pathOfCopy);
+                    File to = new File(pathOfDestination);
+                    if (!to.exists()){
+                        new File(pathOfDestination).mkdir();
+                    }
+                    try {
+                        FileUtils.copyDirectory(fileToCopy, to);
+                        FileUtils.deleteDirectory(fileToCopy);
+                    } catch (IOException ex) {
+                        Logger.getLogger(FlashMemory.class.getName()).log(Level.SEVERE, null, ex);
+                    } 
                     
     //                asdsadsaddsadsadadsa
                     Flasher flash;
                     try {                    
+                        supplier.setWallet(supplier.getWallet()-sale);
                         flash = new Flasher(supplier, packages,games);
                         flash.show();
                     } catch (JSONException ex) {
@@ -590,9 +593,8 @@ public class Flasher extends JFrame{
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         sale = sale + packages.get(gameToSale).getFullPrice();
-        int cents = sale % 100;
-        int decimals = sale/100;
-        labelPrice.setText("Precio: " + Integer.toString(decimals) + "." + Integer.toString(cents));   
+        float priceShow = (float) sale / 100;
+        labelPrice.setText("Precio: "  + priceShow);   
         if(packages.get(gameToSale).getFullPrice()>supplier.getWallet()){
             JOptionPane.showMessageDialog(null, "No posee los creditos suficientes para adquirir este paquete. Contactar a Eurocase", "Error",JOptionPane.ERROR_MESSAGE);
         }

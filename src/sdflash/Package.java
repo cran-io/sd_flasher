@@ -22,9 +22,8 @@ class Package
         this.name = name;
         this.id = value;
         this.price = priceValue;
-        int priceCents = (priceValue % 100);
-        int priceDecimal = priceValue / 100;
-        this.priceText = Integer.toString(priceDecimal)+"."+Integer.toString(priceCents);
+        float priceShow = (float) price / 100;
+        this.priceText = Float.toString(priceShow);
     }
 
     @Override
@@ -62,7 +61,5 @@ class Package
     public int[] getGamesInPackage(){
         return this.gamesInPackage;
     }
-    
-    
     
 }
