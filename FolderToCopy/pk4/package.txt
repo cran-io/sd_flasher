@@ -1,3 +1,0 @@
-Este es un paquete
-Esta es la descripcion del primer paquete creado
-1

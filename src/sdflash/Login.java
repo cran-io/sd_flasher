@@ -55,7 +55,7 @@ public class Login extends javax.swing.JFrame {
         password = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Login Tabi Games SD Flasher Beta");
+        setTitle("Tabi SD Burner");
 
         jLabel2.setText("Password:");
 

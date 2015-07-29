@@ -197,7 +197,7 @@ public class Flasher extends JFrame{
         jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Tabi Games SD Flasher");
+        setTitle("Tabi SD Burner");
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Informacion de su cuenta", javax.swing.border.TitledBorder.RIGHT, javax.swing.border.TitledBorder.DEFAULT_POSITION));
 

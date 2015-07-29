@@ -1,2 +1,0 @@
-paquete 3
-descripcion paquete 3

@@ -1,4 +1,0 @@
-Juego 1
-Esta es la descripcion del juego
-short | version | compania
-short | version | compania | Todos los derechos reservados.
