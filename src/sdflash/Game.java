@@ -111,4 +111,8 @@ public class Game {
         this.images = images;
     }
     
+    public String dame(){
+        return this.apk_link + " " + this.name;
+    }
+    
 }

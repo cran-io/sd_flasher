@@ -242,7 +242,7 @@ public final class Updating extends javax.swing.JFrame {
 //          Here we start the downloading of all the games and packages  
             do{
                 JSONObject explrObject = jsonArrayOfGames.getJSONObject(gameNumber);
-                String game = "game" + explrObject.getInt("id") + "//";
+                String game = "game" + explrObject.getInt("id") + "//";                
                 pathOfFiles = System.getProperty("user.dir") + File.separator + "Files" + File.separator + game;
                 folderOfFiles = new File(pathOfFiles);
 //              First we check if the main file exist, if it does not we download all the files because its the first time that the provider use the program  
@@ -272,6 +272,7 @@ public final class Updating extends javax.swing.JFrame {
 //                  First we check if the main file exist, if it does not we download all the files because its the first time that the provider use the program  
 //                    if(!folderOfFiles.exists()){
 //                        new File(pathOfFiles).mkdir();
+                    
                         try (Writer writer = new BufferedWriter(new OutputStreamWriter(
                             new FileOutputStream(pathOfFiles + "/version.txt"), "utf-8"))) {
                                 writer.write(Integer.toString(games.get(id).getVersion()));
@@ -310,6 +311,7 @@ public final class Updating extends javax.swing.JFrame {
 //                    dir = new URL("http://fdda2013.web44.net//" + game + "logo.png");
                     dir = new URL(games.get(id).getLogoURL());
                     FileUtils.copyURLToFile(dir, fileToCopy);
+                    id++;
                 }
                 gameNumber++;
             }while(gameNumber<countOfGames);
@@ -350,9 +352,10 @@ public final class Updating extends javax.swing.JFrame {
         
 //      The provider already has some files downloaded so we only update the games that has changed  
         else{
-            gameNumber = 0;
+            id = 0;
             do{
-                JSONObject explrObject = jsonArrayOfGames.getJSONObject(gameNumber);
+                
+                JSONObject explrObject = jsonArrayOfGames.getJSONObject(id);
                 String game = "game" + explrObject.getInt("id");
                 pathOfFiles = System.getProperty("user.dir") + File.separator + "Files" + File.separator + game + File.separator ;
                 folderOfFiles = new File(pathOfFiles);
@@ -367,16 +370,18 @@ public final class Updating extends javax.swing.JFrame {
                             line = br.readLine();
                         }
                         String version = sb.toString();
-                        int ver = Integer.parseInt(version);
+                        int ver = Integer.parseInt(version);                        
                         for(int i=0; i<countOfGames; i++){
-                            if(games.get(i).getName().equals(game))
+                            String gameChecker = "game" + games.get(i).getIDpackage();
+                            if(gameChecker.equals(game)){
+                                
 //                              If the version of the game that the provider has in his computer is older than the one that is on the server we download all the new files  
                                 if (games.get(i).getVersion()>ver){
                                     differences = true;
 
                                     String[] imagesOfPreview = games.get(id).getImages();
 
-                        for (int k=0; i<games.get(id).getImages().length; k++){
+                        for (int k=0; k<games.get(id).getImages().length; k++){
                             File fileToCopy = new File(folderOfFiles,"image" + Integer.toString(k) + ".png");
                             URL dir = new URL(imagesOfPreview[k]);
 //                            URL dir = new URL("http://fdda2013.web44.net//" + game + "//image" + Integer.toString(i) + ".png");
@@ -457,6 +462,7 @@ public final class Updating extends javax.swing.JFrame {
 //                                FileUtils.copyURLToFile(dir, fileToCopy);
                         
                                 };
+                            }
                         }
                     }
                     finally {
@@ -529,8 +535,8 @@ public final class Updating extends javax.swing.JFrame {
                     FileUtils.copyURLToFile(dir, fileToCopy);
                 }
                 
-                gameNumber++;
-            }while(gameNumber<countOfGames);
+                id++;
+            }while(id<countOfGames);
             
             packageNumber = 0;
             
@@ -582,7 +588,7 @@ public final class Updating extends javax.swing.JFrame {
     }
     
     private void setIcon() {
-        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("logo.png")));
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("logo.ico")));
     }
     
 }

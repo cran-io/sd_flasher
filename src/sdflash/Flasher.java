@@ -56,6 +56,7 @@ public class Flasher extends JFrame{
     DefaultListModel modelOfSale = new DefaultListModel();
     int gameToSale = 0;
     int controlPackages = 0;
+    int walletActual=0;
     
     public Flasher() {
         initComponents();   
@@ -78,7 +79,8 @@ public class Flasher extends JFrame{
         }
         
         this.setLocationRelativeTo(null);
-        this.supplier = supplier;        
+        this.supplier = supplier;      
+        walletActual = supplier.getWallet();
         this.packages = packagesListSent;
         this.games = gamesListSent;
         int wallet = this.supplier.getWallet();
@@ -204,7 +206,8 @@ public class Flasher extends JFrame{
         usernameLabel.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
         usernameLabel.setText("jLabel1");
 
-        walletLabel.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
+        walletLabel.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
+        walletLabel.setForeground(new java.awt.Color(255, 0, 0));
         walletLabel.setText("jLabel2");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -318,7 +321,8 @@ public class Flasher extends JFrame{
                 .addContainerGap())
         );
 
-        labelPrice.setFont(new java.awt.Font("Lucida Grande", 0, 16)); // NOI18N
+        labelPrice.setFont(new java.awt.Font("Lucida Grande", 1, 16)); // NOI18N
+        labelPrice.setForeground(new java.awt.Color(0, 51, 153));
         labelPrice.setText("Precio:");
 
         buttonClear.setText("<<EMPEZAR NUEVA VENTA>>");
@@ -574,7 +578,7 @@ public class Flasher extends JFrame{
     //                asdsadsaddsadsadadsa
                     Flasher flash;
                     try {                    
-                        supplier.setWallet(supplier.getWallet()-sale);
+//                        supplier.setWallet(supplier.getWallet()-sale);
                         flash = new Flasher(supplier, packages,games);
                         flash.show();
                     } catch (JSONException ex) {
@@ -592,14 +596,23 @@ public class Flasher extends JFrame{
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        sale = sale + packages.get(gameToSale).getFullPrice();
-        float priceShow = (float) sale / 100;
-        labelPrice.setText("Precio: "  + priceShow);   
-        if(packages.get(gameToSale).getFullPrice()>supplier.getWallet()){
+        if (packageList.isSelectionEmpty()){
+            JOptionPane.showMessageDialog(null, "Debe seleccionar un paquete.", "Error",JOptionPane.ERROR_MESSAGE);
+        }
+        else{
+//        if(packages.get(gameToSale).getFullPrice()>supplier.getWallet()){
+        if(packages.get(gameToSale).getFullPrice()>walletActual){
             JOptionPane.showMessageDialog(null, "No posee los creditos suficientes para adquirir este paquete. Contactar a Eurocase", "Error",JOptionPane.ERROR_MESSAGE);
         }
         else{
-            
+            walletActual = walletActual - packages.get(gameToSale).getFullPrice();
+            sale = sale + packages.get(gameToSale).getFullPrice();
+            float priceShow = (float) sale / 100;
+            labelPrice.setText("Precio: "  + priceShow);
+            float creditUpDate = (float) (walletActual)/ 100;
+            System.out.println("creditUpdate" + creditUpDate);
+//            supplier.setWallet(supplier.getWallet() - packages.get(gameToSale).getFullPrice());
+            walletLabel.setText("Credito:" + creditUpDate);
             int[] newSeries = new int[salesPackages.length + 1];
             for (int i = 0; i < salesPackages.length; i++){
                 newSeries[i] = salesPackages[i];
@@ -621,6 +634,7 @@ public class Flasher extends JFrame{
 //                }
 //            } 
 //            packageList.setModel(model2);
+        }
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -711,7 +725,7 @@ public class Flasher extends JFrame{
     // End of variables declaration//GEN-END:variables
 
     private void setIcon() {
-        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("logo.png")));
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("logo.ico")));
     }
     
 }
