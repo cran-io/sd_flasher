@@ -578,7 +578,7 @@ public class Flasher extends JFrame{
     //                asdsadsaddsadsadadsa
                     Flasher flash;
                     try {                    
-//                        supplier.setWallet(supplier.getWallet()-sale);
+                        supplier.setWallet(supplier.getWallet()-sale);
                         flash = new Flasher(supplier, packages,games);
                         flash.show();
                     } catch (JSONException ex) {
