@@ -1,5 +1,7 @@
 package sdflash;
 
+import java.awt.Font;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -19,10 +21,15 @@ import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.OverlayLayout;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileSystemView;
@@ -69,7 +76,7 @@ public class Flasher extends JFrame{
         
         File[] paths;
         FileSystemView fsv = FileSystemView.getFileSystemView();
-        
+        jLabel1.setVisible(false);
         paths = File.listRoots();
         
         for(File path:paths)
@@ -197,6 +204,7 @@ public class Flasher extends JFrame{
         buttonClear = new javax.swing.JButton();
         jComboBox2 = new javax.swing.JComboBox();
         jButton2 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Tabi SD Burner");
@@ -341,6 +349,9 @@ public class Flasher extends JFrame{
             }
         });
 
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("Creando la SD...");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -348,6 +359,7 @@ public class Flasher extends JFrame{
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -394,7 +406,8 @@ public class Flasher extends JFrame{
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(exitButton)
                     .addComponent(buttonClear))
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel1))
         );
 
         pack();
@@ -415,6 +428,18 @@ public class Flasher extends JFrame{
                 JOptionPane.showMessageDialog(null, "Debe elejir una micro SD para flashear.", "ERROR: Ninguna tarjeta seleccionada", 1);
             }
             else{
+                jPanel1.setVisible(false);
+                jPanel2.setVisible(false);
+                jPanel3.setVisible(false);
+                jPanel4.setVisible(false);
+                labelPrice.setVisible(false);
+                buttonClear.setVisible(false);
+                exitButton.setVisible(false);
+                flashSDCard.setVisible(false);
+                jComboBox2.setVisible(false);
+                jButton2.setVisible(false);
+                jLabel1.setVisible(true);
+                jLabel1.setFont(new Font("Serif", Font.PLAIN, 30));
                 for(int i=0;i<salesPackages.length;i++){
 
                     String pathOfPackage = System.getProperty("user.dir") + File.separator + "Files" + File.separator;
@@ -484,7 +509,7 @@ public class Flasher extends JFrame{
                 
                 if(freeSpace>freeSpace2){
                 
-//                asdsadsdasdsadsdsada
+
                     for(int i=0;i<salesPackages.length;i++){
                         String pathOfPackage = System.getProperty("user.dir") + File.separator + "Files" + File.separator;
                         String pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator;
@@ -507,7 +532,13 @@ public class Flasher extends JFrame{
                                     postingString = new StringEntity(obj.toString());
                                     post.setEntity(postingString);
                                     post.setHeader("Content-type", "application/json");
-                                    HttpResponse  response = httpClient.execute(post);
+                                    Boolean found;
+                                    do{
+                                        HttpResponse  response = httpClient.execute(post);
+                                        String word = "200 OK";
+                                        String textoTest = response.toString();
+                                        found = !textoTest.contains(word);
+                                    }while(found);
                                     pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + salesPackages[i];
                                     File file = new File(pathOfDestination + "/key.txt");
 
@@ -710,6 +741,7 @@ public class Flasher extends JFrame{
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JComboBox jComboBox2;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
