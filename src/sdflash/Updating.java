@@ -14,11 +14,13 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import static java.lang.System.exit;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.Timer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -29,7 +31,7 @@ import static sdflash.Flasher.packages;
 
 public final class Updating extends javax.swing.JFrame {
 //  Here we declare the variables that we are going to use in all the class  
-    String server = "104.236.88.136:3000";
+    String server = "159.203.120.113:3000";
     Supplier supp;
     static List<Game> games = new ArrayList<Game>();
     static List<Package> packages = new ArrayList<Package>();
@@ -257,14 +259,52 @@ public final class Updating extends javax.swing.JFrame {
                         File fileToCopy = new File(folderOfFiles,"image" + Integer.toString(i) + ".png");
                         URL dir = new URL(imagesOfPreview[i]);
 //                        URL dir = new URL("http://fdda2013.web44.net//" + game + "//image" + Integer.toString(i) + ".png");
+                        try 
+                    {
                         FileUtils.copyURLToFile(dir, fileToCopy);
+                    }
+                    catch (IOException ex) {
+                        try{
+                            FileUtils.copyURLToFile(dir, fileToCopy);
+                        }
+                        catch (IOException ex2) {
+                            try{
+                                FileUtils.copyURLToFile(dir, fileToCopy);
+                            }
+                            catch (IOException ex3) {
+//                                FileUtils.copyURLToFile(dir, fileToCopy);
+                                JOptionPane.showMessageDialog(null, "Se perdio la conexión .", "Error",JOptionPane.ERROR_MESSAGE);
+                                exit(0);
+                                
+                            }
+                        }
+                        
+                    }
                     }
 
 //                  Here we copy te game that is encrypted so it does not matter that the provider has acces to it
                     File fileToCopy = new File(folderOfFiles,"game.zip");
 //                    URL dir = new URL("http://fdda2013.web44.net//" + game + "//game.zip");
                     URL dir = new URL(games.get(id).getApk_link());
-                    FileUtils.copyURLToFile(dir, fileToCopy);
+                    try 
+                    {
+                        FileUtils.copyURLToFile(dir, fileToCopy);
+                    }
+                    catch (IOException ex) {
+                        try{
+                            FileUtils.copyURLToFile(dir, fileToCopy);
+                        }
+                        catch (IOException ex2) {
+                            try{
+                                FileUtils.copyURLToFile(dir, fileToCopy);
+                            }
+                            catch (IOException ex3) {
+                                JOptionPane.showMessageDialog(null, "Se perdio la conexión .", "Error",JOptionPane.ERROR_MESSAGE);
+                                exit(0);
+                            }
+                        }
+                        
+                    }
 //                  Finally we get the version & info text an d the logo of the game
                     
 //                    pathOfFiles = System.getProperty("user.dir") + File.separator + "Files" + File.separator + packageString;
@@ -310,7 +350,25 @@ public final class Updating extends javax.swing.JFrame {
                     fileToCopy = new File(folderOfFiles,"logo.png");
 //                    dir = new URL("http://fdda2013.web44.net//" + game + "logo.png");
                     dir = new URL(games.get(id).getLogoURL());
-                    FileUtils.copyURLToFile(dir, fileToCopy);
+                    try 
+                    {
+                        FileUtils.copyURLToFile(dir, fileToCopy);
+                    }
+                    catch (IOException ex) {
+                        try{
+                            FileUtils.copyURLToFile(dir, fileToCopy);
+                        }
+                        catch (IOException ex2) {
+                            try{
+                                FileUtils.copyURLToFile(dir, fileToCopy);
+                            }
+                            catch (IOException ex3) {
+                                JOptionPane.showMessageDialog(null, "Se perdio la conexión .", "Error",JOptionPane.ERROR_MESSAGE);
+                                exit(0);
+                            }
+                        }
+                        
+                    }
                     id++;
                 }
                 gameNumber++;
@@ -343,7 +401,25 @@ public final class Updating extends javax.swing.JFrame {
 //                    FileUtils.copyURLToFile(dir, fileToCopy);
                     File fileToCopy = new File(folderOfFiles,"logo.png");
                     URL dir = new URL(explrObject.getString("logo"));
-                    FileUtils.copyURLToFile(dir, fileToCopy);
+                    try 
+                    {
+                        FileUtils.copyURLToFile(dir, fileToCopy);
+                    }
+                    catch (IOException ex) {
+                        try{
+                            FileUtils.copyURLToFile(dir, fileToCopy);
+                        }
+                        catch (IOException ex2) {
+                            try{
+                                FileUtils.copyURLToFile(dir, fileToCopy);
+                            }
+                            catch (IOException ex3) {
+                                JOptionPane.showMessageDialog(null, "Se perdio la conexión .", "Error",JOptionPane.ERROR_MESSAGE);
+                                exit(0);
+                            }
+                        }
+                        
+                    }
                 }
                 packageNumber++;
             }while(packageNumber<countOfPackages);
@@ -385,14 +461,50 @@ public final class Updating extends javax.swing.JFrame {
                             File fileToCopy = new File(folderOfFiles,"image" + Integer.toString(k) + ".png");
                             URL dir = new URL(imagesOfPreview[k]);
 //                            URL dir = new URL("http://fdda2013.web44.net//" + game + "//image" + Integer.toString(i) + ".png");
-                            FileUtils.copyURLToFile(dir, fileToCopy);
+                            try 
+                            {
+                                FileUtils.copyURLToFile(dir, fileToCopy);
+                            }
+                            catch (IOException ex) {
+                                try{
+                                    FileUtils.copyURLToFile(dir, fileToCopy);
+                                }
+                                catch (IOException ex2) {
+                                    try{
+                                        FileUtils.copyURLToFile(dir, fileToCopy);
+                                    }
+                                    catch (IOException ex3) {
+                                        JOptionPane.showMessageDialog(null, "Se perdio la conexión .", "Error",JOptionPane.ERROR_MESSAGE);
+                                exit(0);
+                                    }
+                                }
+
+                            }
                         }
 
 //                      Here we copy te game that is encrypted so it does not matter that the provider has acces to it
                         File fileToCopy = new File(folderOfFiles,"game.zip");
 //                        URL dir = new URL("http://fdda2013.web44.net//" + game + "//game.zip");
                         URL dir = new URL(games.get(id).getApk_link());
-                        FileUtils.copyURLToFile(dir, fileToCopy);
+                        try 
+                        {
+                            FileUtils.copyURLToFile(dir, fileToCopy);
+                        }
+                        catch (IOException ex) {
+                            try{
+                                FileUtils.copyURLToFile(dir, fileToCopy);
+                            }
+                            catch (IOException ex2) {
+                                try{
+                                    FileUtils.copyURLToFile(dir, fileToCopy);
+                                }
+                                catch (IOException ex3) {
+                                 JOptionPane.showMessageDialog(null, "Se perdio la conexión .", "Error",JOptionPane.ERROR_MESSAGE);
+                                exit(0);
+                                }
+                            }
+
+                        }
 //                      Finally we get the version & info text an d the logo of the game
 
 //                        pathOfFiles = System.getProperty("user.dir") + File.separator + "Files" + File.separator + packageString;
@@ -437,7 +549,25 @@ public final class Updating extends javax.swing.JFrame {
                         fileToCopy = new File(folderOfFiles,"logo.png");
 //                    dir = new URL("http://fdda2013.web44.net//" + game + "logo.png");
                         dir = new URL(games.get(id).getLogoURL());
-                        FileUtils.copyURLToFile(dir, fileToCopy);
+                        try 
+                        {
+                            FileUtils.copyURLToFile(dir, fileToCopy);
+                        }
+                        catch (IOException ex) {
+                            try{
+                                FileUtils.copyURLToFile(dir, fileToCopy);
+                            }
+                            catch (IOException ex2) {
+                                try{
+                                    FileUtils.copyURLToFile(dir, fileToCopy);
+                                }
+                                catch (IOException ex3) {
+                                    JOptionPane.showMessageDialog(null, "Se perdio la conexión .", "Error",JOptionPane.ERROR_MESSAGE);
+                                exit(0);
+                                }
+                            }
+
+                        }
 
 //                                File fileToCopy = new File(folderOfFiles,"info.txt");
 //                                URL dir = new URL("http://fdda2013.web44.net//" + game + "//info.txt");
@@ -480,14 +610,50 @@ public final class Updating extends javax.swing.JFrame {
                         File fileToCopy = new File(folderOfFiles,"image" + Integer.toString(i) + ".png");
                         URL dir = new URL(imagesOfPreview[i]);
 //                        URL dir = new URL("http://fdda2013.web44.net//" + game + "//image" + Integer.toString(i) + ".png");
-                        FileUtils.copyURLToFile(dir, fileToCopy);
+                        try 
+                        {
+                            FileUtils.copyURLToFile(dir, fileToCopy);
+                        }
+                        catch (IOException ex) {
+                            try{
+                                FileUtils.copyURLToFile(dir, fileToCopy);
+                            }
+                            catch (IOException ex2) {
+                                try{
+                                    FileUtils.copyURLToFile(dir, fileToCopy);
+                                }
+                                catch (IOException ex3) {
+                                    JOptionPane.showMessageDialog(null, "Se perdio la conexión .", "Error",JOptionPane.ERROR_MESSAGE);
+                                exit(0);
+                                }
+                            }
+
+                        }
                     }
 
 //                  Here we copy te game that is encrypted so it does not matter that the provider has acces to it
                     File fileToCopy = new File(folderOfFiles,"game.zip");
 //                    URL dir = new URL("http://fdda2013.web44.net//" + game + "//game.zip");
                     URL dir = new URL(games.get(id).getApk_link());
-                    FileUtils.copyURLToFile(dir, fileToCopy);
+                    try 
+                    {
+                        FileUtils.copyURLToFile(dir, fileToCopy);
+                    }
+                    catch (IOException ex) {
+                        try{
+                            FileUtils.copyURLToFile(dir, fileToCopy);
+                        }
+                        catch (IOException ex2) {
+                            try{
+                                FileUtils.copyURLToFile(dir, fileToCopy);
+                            }
+                            catch (IOException ex3) {
+                                JOptionPane.showMessageDialog(null, "Se perdio la conexión .", "Error",JOptionPane.ERROR_MESSAGE);
+                                exit(0);
+                            }
+                        }
+                        
+                    }
 //                  Finally we get the version & info text an d the logo of the game
                     
 //                    pathOfFiles = System.getProperty("user.dir") + File.separator + "Files" + File.separator + packageString;
@@ -532,7 +698,25 @@ public final class Updating extends javax.swing.JFrame {
                     fileToCopy = new File(folderOfFiles,"logo.png");
 //                    dir = new URL("http://fdda2013.web44.net//" + game + "logo.png");
                     dir = new URL(games.get(id).getLogoURL());
-                    FileUtils.copyURLToFile(dir, fileToCopy);
+                    try 
+                    {
+                        FileUtils.copyURLToFile(dir, fileToCopy);
+                    }
+                    catch (IOException ex) {
+                        try{
+                            FileUtils.copyURLToFile(dir, fileToCopy);
+                        }
+                        catch (IOException ex2) {
+                            try{
+                                FileUtils.copyURLToFile(dir, fileToCopy);
+                            }
+                            catch (IOException ex3) {
+                                JOptionPane.showMessageDialog(null, "Se perdio la conexión .", "Error",JOptionPane.ERROR_MESSAGE);
+                                exit(0);
+                            }
+                        }
+                        
+                    }
                 }
                 
                 id++;
@@ -567,7 +751,25 @@ public final class Updating extends javax.swing.JFrame {
 //                    FileUtils.copyURLToFile(dir, fileToCopy);
                     File fileToCopy = new File(folderOfFiles,"logo.png");
                     URL dir = new URL(explrObject.getString("logo"));
-                    FileUtils.copyURLToFile(dir, fileToCopy);
+                    try 
+                    {
+                        FileUtils.copyURLToFile(dir, fileToCopy);
+                    }
+                    catch (IOException ex) {
+                        try{
+                            FileUtils.copyURLToFile(dir, fileToCopy);
+                        }
+                        catch (IOException ex2) {
+                            try{
+                                FileUtils.copyURLToFile(dir, fileToCopy);
+                            }
+                            catch (IOException ex3) {
+                                JOptionPane.showMessageDialog(null, "Se perdio la conexión .", "Error",JOptionPane.ERROR_MESSAGE);
+                                exit(0);
+                            }
+                        }
+                        
+                    }
                 }
                 packageNumber++;
             }while(packageNumber<countOfPackages);

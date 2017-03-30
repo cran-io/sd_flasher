@@ -17,6 +17,7 @@ import static java.lang.System.exit;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
@@ -55,7 +56,7 @@ public class Flasher extends JFrame{
     int sale= 0 ;
     int salesPackages[] = new int[0];
     DefaultListModel packagesToSale = new DefaultListModel();
-    String server = "104.236.88.136:3000";
+    String server = "159.203.120.113:3000";
     static Supplier supplier;    
     static List<Game> games = new ArrayList<Game>();
     static List<Package> packages = new ArrayList<Package>();
@@ -350,7 +351,7 @@ public class Flasher extends JFrame{
         });
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Creando la SD...");
+        jLabel1.setText("Creando la SD...Espere");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -476,7 +477,9 @@ public class Flasher extends JFrame{
                                 fileToCopy= new File(pathOfDestination);
                                 from = new File(pathOfGames);
                                 FileUtils.copyDirectory(from, fileToCopy);
-                                if((packages.get(j).getId()!=salesPackages[i])){
+                                
+                                if(Arrays.binarySearch(salesPackages, packages.get(j).getId())<0){
+//                                if((packages.get(j).getId()!=salesPackages[i])){
                                     String pathOfPackageToCopy = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j).getId() + File.separator + "key.txt";
                                     File filePackageToCopy= new File(pathOfPackageToCopy);
                                     if(!filePackageToCopy.exists()){
@@ -595,16 +598,18 @@ public class Flasher extends JFrame{
                     String sn = jComboBox2.getSelectedItem().toString();
                     String pathOfDestination = sn + "games";
                     File fileToCopy= new File(pathOfCopy);
-                    File to = new File(pathOfDestination);
-                    if (!to.exists()){
-                        new File(pathOfDestination).mkdir();
-                    }
-                    try {
-                        FileUtils.copyDirectory(fileToCopy, to);
-                        FileUtils.deleteDirectory(fileToCopy);
-                    } catch (IOException ex) {
-                        Logger.getLogger(FlashMemory.class.getName()).log(Level.SEVERE, null, ex);
-                    } 
+                    
+//                    esto hay q ponerlo again
+//                    File to = new File(pathOfDestination);
+//                    if (!to.exists()){
+//                        new File(pathOfDestination).mkdir();
+//                    }
+//                    try {
+//                        FileUtils.copyDirectory(fileToCopy, to);
+//                        FileUtils.deleteDirectory(fileToCopy);
+//                    } catch (IOException ex) {
+//                        Logger.getLogger(FlashMemory.class.getName()).log(Level.SEVERE, null, ex);
+//                    } 
                     
     //                asdsadsaddsadsadadsa
                     Flasher flash;

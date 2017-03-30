@@ -32,7 +32,7 @@ public class Login extends javax.swing.JFrame {
      */
     
     Supplier supplier = null;
-    String server = "104.236.88.136:3000";
+    String server = "159.203.120.113:3000";
     public Login(){
         initComponents();
         setIcon();
