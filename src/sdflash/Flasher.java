@@ -65,6 +65,7 @@ public class Flasher extends JFrame{
     int gameToSale = 0;
     int controlPackages = 0;
     int walletActual=0;
+    boolean checkForDelete = false;
     
     public Flasher() {
         initComponents();   
@@ -466,10 +467,13 @@ public class Flasher extends JFrame{
                         try {
                             in = new URL("http://"+server+"//api//v1//packages//" + packages.get(j).getId() + "//?api_token=" + supplier.getApiToken()).openStream();
                             String text = IOUtils.toString( in ) ;
+                            checkForDelete = true;
                             IOUtils.closeQuietly(in);
                             JSONObject obj = new JSONObject(text);
+                            System.out.println(text);
                             JSONArray jsonPackagesGames = obj.getJSONArray("games");
                             int countOfGamesInPackages = jsonPackagesGames.length();
+                            System.out.println("CANTIDAD DE JUEGOS EN JSON "+countOfGamesInPackages);
                             for(int k=0;k<countOfGamesInPackages; k++){
                                 JSONObject explrObject2 = jsonPackagesGames.getJSONObject(k);
                                 String pathOfGames = System.getProperty("user.dir") + File.separator + "Files" + File.separator + "game" + explrObject2.getInt("id");
@@ -477,9 +481,20 @@ public class Flasher extends JFrame{
                                 fileToCopy= new File(pathOfDestination);
                                 from = new File(pathOfGames);
                                 FileUtils.copyDirectory(from, fileToCopy);
+                                System.out.println("-_--_--_--_--_--_--_-");
+                                System.out.println("id del paquete "+salesPackages[i]);
+                                System.out.println("largo del paquete "+salesPackages.length);
+                                System.out.println("id del paquete packages de control "+packages.get(j).getId());
+                                System.out.println("size del packaeges"+packages.size());
+                                System.out.println(Arrays.binarySearch(salesPackages, packages.get(j).getId()));
                                 
-                                if(Arrays.binarySearch(salesPackages, packages.get(j).getId())<0){
-//                                if((packages.get(j).getId()!=salesPackages[i])){
+//                                if(Arrays.binarySearch(salesPackages, packages.get(j).getId())<0){
+                                for (int l = 0; l < salesPackages.length; l++) {
+                                   if((packages.get(j).getId()==salesPackages[l])){
+                                        checkForDelete = false;
+                                    } 
+                                }
+                                if (checkForDelete){
                                     String pathOfPackageToCopy = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + packages.get(j).getId() + File.separator + "key.txt";
                                     File filePackageToCopy= new File(pathOfPackageToCopy);
                                     if(!filePackageToCopy.exists()){
@@ -488,6 +503,7 @@ public class Flasher extends JFrame{
                                         fileToDelete.delete();
                                     }
                                 }
+                                
                             }
                         } catch (MalformedURLException ex) {
                             Logger.getLogger(Flasher.class.getName()).log(Level.SEVERE, null, ex);
@@ -636,41 +652,29 @@ public class Flasher extends JFrame{
             JOptionPane.showMessageDialog(null, "Debe seleccionar un paquete.", "Error",JOptionPane.ERROR_MESSAGE);
         }
         else{
-//        if(packages.get(gameToSale).getFullPrice()>supplier.getWallet()){
-        if(packages.get(gameToSale).getFullPrice()>walletActual){
-            JOptionPane.showMessageDialog(null, "No posee los creditos suficientes para adquirir este paquete. Contactar a Eurocase", "Error",JOptionPane.ERROR_MESSAGE);
-        }
-        else{
-            walletActual = walletActual - packages.get(gameToSale).getFullPrice();
-            sale = sale + packages.get(gameToSale).getFullPrice();
-            float priceShow = (float) sale / 100;
-            labelPrice.setText("Precio: "  + priceShow);
-            float creditUpDate = (float) (walletActual)/ 100;
-            System.out.println("creditUpdate" + creditUpDate);
-//            supplier.setWallet(supplier.getWallet() - packages.get(gameToSale).getFullPrice());
-            walletLabel.setText("Credito:" + creditUpDate);
-            int[] newSeries = new int[salesPackages.length + 1];
-            for (int i = 0; i < salesPackages.length; i++){
-                newSeries[i] = salesPackages[i];
+            if(packages.get(gameToSale).getFullPrice()>walletActual){
+                JOptionPane.showMessageDialog(null, "No posee los creditos suficientes para adquirir este paquete. Contactar a Eurocase", "Error",JOptionPane.ERROR_MESSAGE);
             }
-            newSeries[newSeries.length - 1] = packages.get(gameToSale).getId();
-            salesPackages = newSeries; 
-            
-            packagesToSale.add(controlPackages, packages.get(gameToSale).toString());
-            controlPackages ++;
-            toFlashList.setModel(packagesToSale);
-            
-//            int itemToDelete = packageList.getSelectedIndex();
-//            
-//            DefaultListModel model2 = new DefaultListModel();
-//            
-//            for (int i = 0; i < packages.size(); i++) {
-//                if (itemToDelete!=i) {
-//                    model2.add(i,packages.get(i).toString() + " " + packages.get(i).getPrice());
-//                }
-//            } 
-//            packageList.setModel(model2);
-        }
+            else{
+                walletActual = walletActual - packages.get(gameToSale).getFullPrice();
+                System.out.println("miraesto " + packages.get(gameToSale).getFullPrice());
+                sale = sale + packages.get(gameToSale).getFullPrice();
+                float priceShow = (float) sale / 100;
+                labelPrice.setText("Precio: "  + priceShow);
+                float creditUpDate = (float) (walletActual)/ 100;
+                System.out.println("creditUpdate" + creditUpDate);
+                walletLabel.setText("Credito:" + creditUpDate);
+                int[] newSeries = new int[salesPackages.length + 1];
+                for (int i = 0; i < salesPackages.length; i++){
+                    newSeries[i] = salesPackages[i];
+                }
+                newSeries[newSeries.length - 1] = packages.get(gameToSale).getId();
+                salesPackages = newSeries; 
+
+                packagesToSale.add(controlPackages, packages.get(gameToSale).toString());
+                controlPackages ++;
+                toFlashList.setModel(packagesToSale);
+            }
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
