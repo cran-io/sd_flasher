@@ -177,25 +177,27 @@ public final class Updating extends javax.swing.JFrame {
         InputStream in = null;
         in = new URL("http://"+server+"//api//v1//games//?api_token=" + supp.getApiToken()).openStream();
         
-        text = IOUtils.toString( in ) ;
+        text = IOUtils.toString( in , "UTF-8" ) ;
         IOUtils.closeQuietly(in);
-        
+                     
         JSONArray jsonArrayOfGames = new JSONArray(text); 
         int countOfGames = jsonArrayOfGames.length();
         
         in = new URL("http://"+server+"//api//v1//packages//?api_token=" + supp.getApiToken()).openStream();
         
-        text = IOUtils.toString( in ) ;
+        text = IOUtils.toString( in , "UTF-8" ) ;
         IOUtils.closeQuietly(in);        
         JSONArray jsonPackages = new JSONArray(text); 
         int countOfPackages = jsonPackages.length(); 
 //      And then we create the objects.
-        
+
+                
         for (int i = 0; i < jsonPackages.length(); i++) 
         {
             JSONObject explrObject = jsonPackages.getJSONObject(i);
             packages.add(new Package(explrObject.getString("name"), explrObject.getInt("id"),explrObject.getInt("price")));
         }
+        
         
         for (int i = 0; i < jsonArrayOfGames.length(); i++) 
         {
@@ -218,9 +220,11 @@ public final class Updating extends javax.swing.JFrame {
             
             games.add(new Game(explrObject.getString("name"),explrObject.getString("description"),explrObject.getInt("id"), explrObject.getInt("version"), explrObject.getString("short_description"), explrObject.getString("logo"), explrObject.getString("version_description"), explrObject.getString("company"), explrObject.getString("apk_link"), images));
         }
+        
+        
         for(int i = 0; i<jsonPackages.length();i++){
             in = new URL("http://"+server+"//api//v1//packages//" + packages.get(i).getId() + "//?api_token=" + supp.getApiToken()).openStream();
-            text = IOUtils.toString( in );
+            text = IOUtils.toString( in, "UTF-8" );
             IOUtils.closeQuietly(in);
             JSONObject obj = new JSONObject(text);
             JSONArray jsonPackagesGames = obj.getJSONArray("games");

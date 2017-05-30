@@ -130,8 +130,7 @@ public class Flasher extends JFrame{
                     for (int i = 0; i < packages.size(); i++) {
                         if(packages.get(i).toString().equals(ar.get(gameSelected))){
                             gameToSale = i;
-//                            System.out.println(packages.get(i).getId());
-//                            int id = packages.get(i).getId();
+
                             int idOfGames[] = new int[packages.get(i).getSizeOfGames()];
                             idOfGames = packages.get(i).getGamesInPackage();
                             int controlUbication = 0;
@@ -473,7 +472,7 @@ public class Flasher extends JFrame{
                             System.out.println(text);
                             JSONArray jsonPackagesGames = obj.getJSONArray("games");
                             int countOfGamesInPackages = jsonPackagesGames.length();
-                            System.out.println("CANTIDAD DE JUEGOS EN JSON "+countOfGamesInPackages);
+                            
                             for(int k=0;k<countOfGamesInPackages; k++){
                                 JSONObject explrObject2 = jsonPackagesGames.getJSONObject(k);
                                 String pathOfGames = System.getProperty("user.dir") + File.separator + "Files" + File.separator + "game" + explrObject2.getInt("id");
@@ -481,12 +480,6 @@ public class Flasher extends JFrame{
                                 fileToCopy= new File(pathOfDestination);
                                 from = new File(pathOfGames);
                                 FileUtils.copyDirectory(from, fileToCopy);
-                                System.out.println("-_--_--_--_--_--_--_-");
-                                System.out.println("id del paquete "+salesPackages[i]);
-                                System.out.println("largo del paquete "+salesPackages.length);
-                                System.out.println("id del paquete packages de control "+packages.get(j).getId());
-                                System.out.println("size del packaeges"+packages.size());
-                                System.out.println(Arrays.binarySearch(salesPackages, packages.get(j).getId()));
                                 
 //                                if(Arrays.binarySearch(salesPackages, packages.get(j).getId())<0){
                                 for (int l = 0; l < salesPackages.length; l++) {
@@ -528,13 +521,13 @@ public class Flasher extends JFrame{
                 
                 if(freeSpace>freeSpace2){
                 
-
-                    for(int i=0;i<salesPackages.length;i++){
+                       for(int i=0;i<salesPackages.length;i++){
                         String pathOfPackage = System.getProperty("user.dir") + File.separator + "Files" + File.separator;
                         String pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator;
                         File fileToCopy= new File(pathOfDestination);
                         if(!fileToCopy.exists()) new File(pathOfDestination).mkdir();
     //                  Here we copy the packages that the provider is selling
+    
                         for(int j=0; j<packages.size(); j++){
                             if(packages.get(j).getId()==salesPackages[i]){
                                 HttpClient httpClient = HttpClientBuilder.create().build();
@@ -560,7 +553,7 @@ public class Flasher extends JFrame{
                                     }while(found);
                                     pathOfDestination = System.getProperty("user.dir") + File.separator + "FolderToCopy" + File.separator + "pk" + salesPackages[i];
                                     File file = new File(pathOfDestination + "/key.txt");
-
+                                                                                                            
                                     if (!file.exists()) {
                                             file.createNewFile();
                                             FileWriter fw = new FileWriter(file.getAbsoluteFile());
@@ -614,18 +607,17 @@ public class Flasher extends JFrame{
                     String sn = jComboBox2.getSelectedItem().toString();
                     String pathOfDestination = sn + "games";
                     File fileToCopy= new File(pathOfCopy);
-                    
-//                    esto hay q ponerlo again
-//                    File to = new File(pathOfDestination);
-//                    if (!to.exists()){
-//                        new File(pathOfDestination).mkdir();
-//                    }
-//                    try {
-//                        FileUtils.copyDirectory(fileToCopy, to);
-//                        FileUtils.deleteDirectory(fileToCopy);
-//                    } catch (IOException ex) {
-//                        Logger.getLogger(FlashMemory.class.getName()).log(Level.SEVERE, null, ex);
-//                    } 
+
+                    File to = new File(pathOfDestination);
+                    if (!to.exists()){
+                        new File(pathOfDestination).mkdir();
+                    }
+                    try {
+                        FileUtils.copyDirectory(fileToCopy, to);
+                        FileUtils.deleteDirectory(fileToCopy);
+                    } catch (IOException ex) {
+                        Logger.getLogger(FlashMemory.class.getName()).log(Level.SEVERE, null, ex);
+                    } 
                     
     //                asdsadsaddsadsadadsa
                     Flasher flash;
@@ -657,12 +649,12 @@ public class Flasher extends JFrame{
             }
             else{
                 walletActual = walletActual - packages.get(gameToSale).getFullPrice();
-                System.out.println("miraesto " + packages.get(gameToSale).getFullPrice());
+                
                 sale = sale + packages.get(gameToSale).getFullPrice();
                 float priceShow = (float) sale / 100;
                 labelPrice.setText("Precio: "  + priceShow);
                 float creditUpDate = (float) (walletActual)/ 100;
-                System.out.println("creditUpdate" + creditUpDate);
+                
                 walletLabel.setText("Credito:" + creditUpDate);
                 int[] newSeries = new int[salesPackages.length + 1];
                 for (int i = 0; i < salesPackages.length; i++){
